@@ -228,7 +228,7 @@ html, body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  z-index: -1;
+  z-index: 0; /* 修复：从 -1 改为 0，防止被 body 背景遮挡 */
   pointer-events: none;
 }
 
@@ -237,6 +237,7 @@ html, body {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   overflow: hidden;
+  z-index: 10; /* 修复：确保 UI 层在背景图之上 */
 }
 
 /* 顶部安全区 */
