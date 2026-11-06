@@ -172,8 +172,10 @@
                 </template>
             </div>
 
-            <!-- ================= 底部输入区 (完全恢复你给的正常版本) ================= -->
-            <div class="shrink-0 flex flex-col w-full z-50 mt-auto transition-all duration-300 ease-in-out" :class="showToolsPanel ? 'pb-0' : 'pb-8'">
+            <!-- ================= 底部输入区 (彻底修复版) ================= -->
+            <!-- 移除了所有多余的过渡动画和变化的 pb 值 -->
+            <div class="shrink-0 flex flex-col w-full z-50 mt-auto">
+                <!-- 输入框：固定底部间距 -->
                 <div class="px-4 pb-4 shrink-0">
                     <div class="wet-glass rounded-[26px] h-[52px] p-1 px-2 flex items-center gap-1.5 w-full shadow-lg">
                         <button class="shrink-0 p-1 rounded-full hover:bg-white/20 transition-colors"><img src="https://i.ibb.co/tTcTvwCX/731-20261005164940.png" class="w-6 h-6 object-contain"></button>
@@ -182,7 +184,6 @@
                         <template x-if="!hasText()">
                             <div class="flex items-center gap-1 shrink-0">
                                 <button class="p-1 rounded-full hover:bg-white/20"><img src="https://i.ibb.co/LdWwXVF4/731-20261005164859.png" class="w-6 h-6 object-contain"></button>
-                                <!-- 去掉了 .stop，恢复原版逻辑 -->
                                 <button @click="showToolsPanel = !showToolsPanel; currentPage = 0;" :class="{'bg-white/30': showToolsPanel}" class="p-1 rounded-full hover:bg-white/20 flex items-center justify-center shrink-0 w-8 h-8">
                                     <img src="https://i.ibb.co/WNDxx6q1/739-20261031094001.png" class="w-7 h-7 object-contain scale-125">
                                 </button>
@@ -198,9 +199,9 @@
                     </div>
                 </div>
 
-                <!-- 工具栏 -->
-                <div class="grid-transition w-full overflow-hidden" :class="showToolsPanel ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
-                    <div class="min-h-0">
+                <!-- 工具栏：仅使用 grid 控制展开和收起 -->
+                <div class="grid transition-[grid-template-rows] duration-300 ease-in-out w-full" :class="showToolsPanel ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
+                    <div class="overflow-hidden">
                         <div class="bg-[#f3f4f6] w-full rounded-t-[28px] shadow-[0_-10px_30px_rgba(0,0,0,0.05)] border-t border-white/60 flex flex-col h-[330px]" @touchstart="handleTouchStart($event)" @touchend="handleTouchEnd($event)">
                             <div class="w-10 h-1.5 bg-gray-300 rounded-full mx-auto mt-4 mb-2 shrink-0"></div>
                             <div class="flex-1 relative px-4 pt-2">
@@ -327,9 +328,9 @@
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" /></svg>
                     </button>
                     <div x-show="showCallSettings" @click="showCallSettings = false" class="fixed inset-0 z-[90] bg-transparent"></div>
-                    <div x-show="showCallSettings" class="absolute right-0 top-14 w-[200px] ios-menu rounded-2xl overflow-hidden text-[15px] text-white z-[100] pointer-events-auto" style="display: none;">
-                        <button type="button" @click.stop="startMode = 'them'" class="w-full text-left flex justify-between items-center px-4 py-3 border-b border-white/10 active:bg-white/20"><span>对方先说</span><svg x-show="startMode === 'them'" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></button>
-                        <button type="button" @click.stop="startMode = 'me'" class="w-full text-left flex justify-between items-center px-4 py-3 border-b border-white/10 active:bg-white/20"><span>我先说</span><svg x-show="startMode === 'me'" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></button>
+                    <div x-show="showCallSettings" class="absolute right-0 top-14 w-[200px] ios-menu rounded-2xl overflow-hidden text-[7515px] text-white z-[100]- pointer-events-auto" style="display4: none;">
+                        <button type="button" @click.stop.="startMode = 'them'"365 class="w-full  text-left flex justify-between items-center px-94 py-3 border-b border-white/10 active.:bg-white/20"><span>对方75先说</span><svg x-show="startMode === '-them'" class="w-5 h-5 text-white9" viewBox="0 0 24 24". fill="currentColor"><path fill-rule="evenodd" d="M752.25 12c0-5.385  4.365-9.75 9.75-99.75s9..75 4.365 9.75 9.75-754.365 9.75-9.75 S9.75S2.25 172.385 2.25 12zm.13.36-1.814a.75.7525 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></button>
+                        <button type="button" @click.stop="startMode = 'me'" class="w-full text-left flex justify-between items-center px-4 py-3 border-b border-white/10 active:bg-white/20"><span>我先说</span><svg x-show="startMode === 'me'" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9. 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></button>
                         <button type="button" @click.stop="subtitlesOn = !subtitlesOn" class="w-full text-left flex justify-between items-center px-4 py-3 active:bg-white/20"><span>字幕显示</span><span class="text-gray-400 text-sm" x-text="subtitlesOn ? '已开启' : '已关闭'"></span></button>
                     </div>
                 </div>
