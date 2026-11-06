@@ -212,21 +212,32 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 .state-returned .status-text { color: rgba(255, 255, 255, 0.5); }
 
 /* ================= 5. PWA 全屏无白边核心代码 ================= */
-/* 移除所有乱七八糟的 z-index 和黑底，直接把背景图写在 html 上铺满 Canvas */
 html {
   height: 100%;
   margin: 0;
   overscroll-behavior: none;
-  background-image: url('https://i.ibb.co/VWmvYVTV/IMG-7150.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  /* 兜底防白闪 */
+  background-color: #1a1a1a; 
 }
 
 body {
   height: 100%;
   margin: 0;
-  background-color: transparent; /* 保证完全透明，露出 html 的背景图 */
+  /* 必须透明，不遮挡背景层 */
+  background-color: transparent; 
+}
+
+/* 独立背景层：向下延伸盖住安全区，z-index在最底层 */
+.bg-layer {
+  position: fixed;
+  left: 0; right: 0; top: 0;
+  bottom: calc(-1 * env(safe-area-inset-bottom)); 
+  background-image: url('https://i.ibb.co/VWmvYVTV/IMG-7150.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1; /* 放在最底，但在body之上 */
+  pointer-events: none;
 }
 
 /* 四边定位的根容器 */
@@ -234,6 +245,7 @@ body {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   overflow: hidden;
+  z-index: 10; /* 确保UI层在背景之上 */
 }
 
 /* 顶部安全区 */
@@ -262,5 +274,8 @@ body {
     width: 100%;
     max-width: 480px;
     box-shadow: 0 0 40px rgba(0,0,0,0.15);
+  }
+  .bg-layer {
+    bottom: 0;
   }
 }
