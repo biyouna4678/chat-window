@@ -87,13 +87,13 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 .hologram-exit-btn { position: absolute; top: 24px; right: 24px; width: 48px; height: 48px; border-radius: 50%; z-index: 100; cursor: pointer; background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 0 15px rgba(255, 255, 255, 0.05), inset 0 0 10px rgba(255, 255, 255, 0.05); display: flex; justify-content: center; align-items: center; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
 .hologram-exit-btn:hover { background: rgba(50, 50, 50, 0.7); border-color: rgba(255, 255, 255, 0.5); box-shadow: 0 0 20px rgba(255, 255, 255, 0.2), inset 0 0 15px rgba(255, 255, 255, 0.1); transform: scale(1.05); }
 .exit-icon { position: relative; width: 18px; height: 18px; }
-.exit-icon::before, .exit-icon::after { content: '' ; position: absolute; width: 100%; height: 2px; background-color: #E0E0E0; border-radius: 2px; top: 50%; left: 0; transform: translateY(-50%); box-shadow: 0 0 5px rgba(255, 255, 255, 0.6); transition: background-color 0.3s ease; }
+.exit-icon::before, .exit-icon::after { content: ''; position: absolute; width: 100%; height: 2px; background-color: #E0E0E0; border-radius: 2px; top: 50%; left: 0; transform: translateY(-50%); box-shadow: 0 0 5px rgba(255, 255, 255, 0.6); transition: background-color 0.3s ease; }
 .exit-icon::before { transform: translateY(-50%) rotate(45deg); }
 .exit-icon::after { transform: translateY(-50%) rotate(-45deg); }
 .hologram-exit-btn:hover .exit-icon::before, .hologram-exit-btn:hover .exit-icon::after { background-color: #FFFFFF; box-shadow: 0 0 8px rgba(255, 255, 255, 0.9); }
 
-.grid-bg { position: relative; width: 100%; height: 100%; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px), linear-gradient(to right100, rgba(255, 255, 255, 0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px); background-size: 10px 10px, 10px 10px, 40px 40px, 40px 40px; background-position: top left; display: flex; justify-content: center; align-items: center; }
-.grid-bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.18) 0%, transparent 50%, rgba(0, 0, 0, 0.8)%); pointer-events: none; z-index: 1; }
+.grid-bg { position: relative; width: 100%; height: 100%; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px), linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px); background-size: 10px 10px, 10px 10px, 40px 40px, 40px 40px; background-position: top left; display: flex; justify-content: center; align-items: center; }
+.grid-bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.18) 0%, transparent 50%, rgba(0, 0, 0, 0.8) 100%); pointer-events: none; z-index: 1; }
 .grid-bg .silver-marker-container { width: 240px; height: 240px; }
 .grid-bg .hologram-ring { width: 70px; height: 70px; }
 .grid-bg .hologram-beam { width: 40px; height: 60px; }
@@ -173,13 +173,13 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 .card-5 .brand-group { display: flex; align-items: center; gap: 3mm; }
 .card-5 .brand-logo-svg { width: 6.5mm; height: 6.5mm; }
 .card-5 .brand-title { font-size: 2.2mm; font-weight: 700; letter-spacing: 0.6mm; color: #ffffff; }
-.card-5 .brand-subtitle { font-size: 1.8mm; font-weight: 500; letter-spacing: 0.5 .mm; color: rgba(255, 255, 255, 0.85); }
+.card-5 .brand-subtitle { font-size: 1.8mm; font-weight: 500; letter-spacing: 0.5mm; color: rgba(255, 255, 255, 0.85); }
 .card-5 .card-middle { position: relative; z-index: 2; margin-top: 2mm; }
 .card-5 .chip { width: 9.5mm; height: 7.2mm; border-radius: 1.4mm; background: linear-gradient(135deg, #ffffff 0%, #d5d8dc 40%, #adb2b8 100%); border: 0.4px solid #797d82; position: relative; overflow: hidden; }
 .card-5 .chip-line { position: absolute; border: 0.3px solid #626569; }
 .card-5 .chip-line.h1 { top: 33%; width: 100%; }
 .card-5 .chip-line.h2 { top: 66%; width: 100%; }
-.card-5chip-line.v1 { left: 33%; height: 100%; top: 0; }
+.card-5 .chip-line.v1 { left: 33%; height: 100%; top: 0; }
 .card-5 .chip-line.v2 { left: 66%; height: 100%; top: 0; }
 .card-5 .card-bottom { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: flex-end; }
 .card-5 .info-group { display: flex; gap: 6mm; }
@@ -211,28 +211,21 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 .state-returned .amount::after { content: ''; position: absolute; top: 50%; left: -2px; right: -2px; height: 1px; background-color: rgba(255, 255, 255, 0.7); transform: translateY(-50%); }
 .state-returned .status-text { color: rgba(255, 255, 255, 0.5); }
 
-/* ================= 5. PWA 全屏与终极防滚动布局 ================= */
+/* ================= 5. PWA 全屏与布局 ================= */
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overscroll-behavior: none;
-  background-color: #1a1a1a; 
-  /* 核心修改 1：彻底锁死原生页面滚动，防止长截屏 */
-  position: fixed; 
-  width: 100%;
   overflow: hidden; 
+  background-color: #1a1a1a; 
 }
 
-/* 核心修改 2：把背景图贴在这里，并接管绝对定位 */
 .pwa-root {
-  position: absolute; /* 外部 body 锁死了，内部绝对定位铺满 */
+  position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
   
-  /* 把背景图直接贴在最外层，无缝衔接刘海和黑线 */
+  /* 背景图贴在根容器 */
   background-image: url('https://i.ibb.co/VWmvYVTV/IMG-7150.jpg');
   background-size: cover;
   background-position: center;
@@ -244,7 +237,7 @@ html, body {
   padding-top: max(16px, env(safe-area-inset-top));
 }
 
-/* 核心修改 3：确保只有消息列表能滚动，其他区域锁死 */
+/* 聊天列表性能加速 */
 #chat-scroll {
   -webkit-overflow-scrolling: touch;
   will-change: transform;
