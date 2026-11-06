@@ -7,7 +7,7 @@
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#f3f4f6">
+    <meta name="theme-color" content="#1a1a1a">
     <link rel="manifest" href="./manifest.json">
 
     <title>液态玻璃通讯</title>
@@ -23,10 +23,10 @@
     <script src="./js/map.js"></script>
     <script src="./js/transfer.js"></script>
 </head>
-<body class="font-sans antialiased overflow-hidden">
+<body class="font-sans antialiased">
 
-    <!-- 删掉了 bg-layer，根容器直接自带背景图 -->
-    <div class="pwa-root flex flex-col relative" 
+    <!-- 根容器 -->
+    <div class="pwa-root" 
          x-data="{ ...chatApp(), ...callManager(), ...mapManager(), ...transferManager() }" 
          x-init="initChat(); initCall();"
          @beforeunload.window="stopTimer(); stopCamera(); if(recognition) recognition.stop();">
@@ -34,10 +34,11 @@
         <input type="file" id="native-file-picker" accept="image/*" class="hidden" @change="handleImageUpload($event)">
         <input type="file" id="native-camera-picker" accept="image/*" capture="environment" class="hidden" @change="handleImageUpload($event)">
 
-        <!-- ================= 1. 聊天主界面 ================= -->
+        <!-- 1. 聊天主界面 -->
         <div class="w-full h-full flex flex-col transition-all duration-300"
              :class="callState !== 'idle' && !isMinimized ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'">
             
+            <!-- 顶部固定栏 -->
             <div class="flex items-center justify-between w-full gap-2 shrink-0 mb-4 px-3 relative z-40 pwa-top-safe">
                 <div class="wet-glass rounded-full h-[56px] px-3 flex items-center w-fit max-w-[75%] transition-all duration-300">
                     <button class="p-1 ml-0 text-black hover:text-black transition-colors rounded-full hover:bg-white/20 shrink-0" @click="alert('执行返回操作')">
@@ -80,7 +81,8 @@
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto pb-6 flex flex-col gap-5 px-4 relative z-10 hide-scrollbar" id="chat-scroll">
+            <!-- 消息流 -->
+            <div class="flex-1 overflow-y-auto pb-6 flex flex-col gap-5 px-4 relative hide-scrollbar" id="chat-scroll">
                 <template x-for="(msg, index) in messages" :key="msg.id">
                     <div class="flex w-full animate-fade-in-up" :class="msg.sender === 'me' ? 'justify-end' : 'justify-start'">
                         <div class="flex flex-col w-fit max-w-[80%]" :class="msg.sender === 'me' ? 'items-end' : 'items-start'">
@@ -161,7 +163,7 @@
                 </template>
             </div>
 
-            <!-- ================= 底部输入区 ================= -->
+            <!-- 底部输入区 -->
             <div class="shrink-0 w-full z-50 mt-auto bg-transparent relative">
                 
                 <div class="px-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
@@ -239,7 +241,7 @@
             </div>
         </div>
 
-        <!-- ================= 图片预览 ================= -->
+        <!-- 图片预览 -->
         <div x-show="showImagePreview" x-transition.opacity class="fixed inset-0 z-[500] bg-black/80 backdrop-blur-xl flex flex-col items-center justify-center" style="display: none;" @click.self="showImagePreview = false">
             <img :src="previewImageUrl" class="max-w-[90vw] max-h-[75vh] object-contain rounded-xl shadow-2xl mb-12">
             <div class="flex items-center gap-10">
@@ -252,7 +254,7 @@
             </div>
         </div>
 
-        <!-- ================= 发送位置弹窗 ================= -->
+        <!-- 发送位置弹窗 -->
         <div x-show="showLocationModal" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-full" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-full" class="fixed inset-0 z-[250] flex flex-col justify-end bg-black/40" style="display: none;" @click.self="showLocationModal = false">
             <div class="action-sheet">
                 <div class="preview-map">
@@ -282,7 +284,7 @@
             </div>
         </div>
 
-        <!-- ================= 全息详情页 ================= -->
+        <!-- 全息详情页 -->
         <div x-show="showLocationDetail" x-transition.opacity class="fixed inset-0 z-[300] bg-[#2b2b2b] overflow-hidden" style="display: none;">
             <div class="hologram-exit-btn" @click="showLocationDetail = false"><div class="exit-icon"></div></div>
             <div class="grid-bg">
@@ -302,7 +304,7 @@
             </div>
         </div>
 
-        <!-- ================= 语音通话 ================= -->
+        <!-- 语音通话 -->
         <div x-show="callType === 'voice' && callState !== 'idle' && !isMinimized" x-transition.opacity class="fixed inset-0 z-[100] flex flex-col justify-between pt-14 pb-10 px-6 bg-gray-900 overflow-hidden" style="display: none;">
             <div class="absolute inset-0 z-0 bg-black"></div>
             <div class="flex justify-between items-center w-full shrink-0 relative z-30">
@@ -380,7 +382,7 @@
             </div>
         </div>
 
-        <!-- ================= 视频通话 ================= -->
+        <!-- 视频通话 -->
         <div x-show="callType === 'video' && callState !== 'idle' && !isMinimized" x-transition.opacity class="fixed inset-0 z-[100] flex flex-col justify-between pt-12 pb-8 px-4 bg-[#121212] overflow-hidden" style="display: none;">
             <div class="absolute inset-0 z-0 bg-cover bg-center transition-opacity duration-500" :class="callState === 'active' ? 'opacity-100' : 'opacity-0'" style="background-image: url('https://i.ibb.co/1G5BT8Kg/IMG-9202.jpg');"></div>
             <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none z-0" :class="callState === 'active' ? 'opacity-100' : 'opacity-0'"></div>
@@ -511,7 +513,7 @@
             </div>
         </div>
 
-        <!-- ================= 最小化悬浮小窗 ================= -->
+        <!-- 最小化悬浮小窗 -->
         <div x-show="callState !== 'idle' && isMinimized" x-transition.opacity class="wet-glass fixed z-[200] w-[90px] h-[120px] rounded-[22px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col items-center justify-end pb-3 cursor-pointer overflow-hidden border-white/60 pip-drag" style="display: none;" :style="`left: ${pipX}px; top: ${pipY}px;`" @mousedown="handleDragStart($event)" @touchstart="handleDragStart($event)">
              <div class="absolute top-2.5 left-2.5 w-2.5 h-2.5 rounded-full bg-green-500 border border-white/50 animate-pulse shadow-sm z-20" x-show="callState === 'active'"></div>
              <div class="absolute top-2.5 left-2.5 w-2.5 h-2.5 rounded-full bg-blue-500 border border-white/50 animate-bounce shadow-sm z-20" x-show="callState === 'calling'"></div>
@@ -529,8 +531,7 @@
              <span class="text-gray-800 font-bold text-[11px] font-mono" x-text="callState === 'active' ? callTimer : (callState === 'calling' ? '等待接听' : '来电...')"></span>
         </div>
 
-        <!-- ======================== 转账弹窗群 ======================== -->
-        <!-- 1. 转账表单弹窗 -->
+        <!-- 转账表单 -->
         <div x-show="isTransferModalOpen" x-cloak
              class="fixed inset-0 z-[600] flex items-center justify-center px-4 bg-black/40 backdrop-blur-sm transition-opacity"
              @click.self="isTransferModalOpen = false">
@@ -577,7 +578,7 @@
             </div>
         </div>
 
-        <!-- 2. 银行卡选择半屏弹窗 -->
+        <!-- 银行卡选择 -->
         <div x-show="isBankCardModalOpen" x-cloak
              class="fixed inset-0 z-[610] flex items-end justify-center"
              @click.self="isBankCardModalOpen = false">
@@ -647,7 +648,7 @@
             </div>
         </div>
 
-        <!-- 3. 请输入支付密码弹窗 -->
+        <!-- 密码输入 -->
         <div x-show="isPasswordModalOpen" x-cloak
              class="fixed inset-0 z-[620] flex flex-col justify-end bg-black/60 backdrop-blur-sm"
              x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -688,7 +689,7 @@
             </div>
         </div>
 
-        <!-- 4. 极简转账成功弹窗 -->
+        <!-- 转账成功 -->
         <div x-show="isSuccessModalOpen" x-cloak
              class="fixed inset-0 z-[630] flex items-center justify-center px-4 bg-black/40 backdrop-blur-sm"
              @click.self="isSuccessModalOpen = false; setTimeout(() => amount = '', 300);">
@@ -716,6 +717,7 @@
 
     </div>
 
+    <!-- 注册 Service Worker -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
