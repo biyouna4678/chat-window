@@ -9,7 +9,7 @@
     <!-- PWA 全屏配置 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#1a1a1a">
+    <meta name="theme-color" content="#f3f4f6">
     <link rel="manifest" href="./manifest.json">
 
     <title>液态玻璃通讯 (PWA完美全屏版)</title>
@@ -29,13 +29,10 @@
     <script src="./js/map.js"></script>
     <script src="./js/transfer.js"></script>
 </head>
-<!-- 修改点 1：清理 body 的背景，统一改为深色底色防止白闪 -->
-<body class="font-sans antialiased overflow-hidden bg-[#1a1a1a]">
+<!-- 修改点：去掉了 bg-[#1a1a1a] 黑底 -->
+<body class="font-sans antialiased overflow-hidden">
 
-    <!-- 修改点 2：全新的向下延伸背景层（CSS 中定义） -->
-    <div class="bg-layer"></div>
-
-    <!-- 修改点 3：根容器清理，交由 pwa-root 的 fixed 接管 -->
+    <!-- 根容器 -->
     <div class="pwa-root flex flex-col relative" 
          x-data="{ ...chatApp(), ...callManager(), ...mapManager(), ...transferManager() }" 
          x-init="initChat(); initCall();"
@@ -49,7 +46,7 @@
         <div class="w-full h-full flex flex-col transition-all duration-300"
              :class="callState !== 'idle' && !isMinimized ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'">
             
-            <!-- 顶部固定栏：使用 pwa-top-safe 适配刘海 -->
+            <!-- 顶部固定栏 -->
             <div class="flex items-center justify-between w-full gap-2 shrink-0 mb-4 px-3 relative z-40 pwa-top-safe">
                 <div class="wet-glass rounded-full h-[56px] px-3 flex items-center w-fit max-w-[75%] transition-all duration-300">
                     <button class="p-1 ml-0 text-black hover:text-black transition-colors rounded-full hover:bg-white/20 shrink-0" @click="alert('执行返回操作')">
@@ -178,7 +175,7 @@
                 </template>
             </div>
 
-            <!-- ================= 底部输入区 (极速响应 + 安全区适配版) ================= -->
+            <!-- ================= 底部输入区 ================= -->
             <div class="shrink-0 w-full z-50 mt-auto bg-transparent relative">
                 
                 <div class="px-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
@@ -190,7 +187,6 @@
                             <div class="flex items-center gap-1 shrink-0">
                                 <button class="p-1 rounded-full hover:bg-white/20"><img src="https://i.ibb.co/LdWwXVF4/731-20261005164859.png" class="w-6 h-6 object-contain"></button>
                                 
-                                <!-- 0 延迟召唤工具栏 -->
                                 <button type="button" 
                                         @pointerdown.prevent="showToolsPanel = !showToolsPanel;" 
                                         :class="{'bg-white/30': showToolsPanel}" 
@@ -209,7 +205,6 @@
                     </div>
                 </div>
 
-                <!-- GPU 加速工具栏 -->
                 <div class="w-full overflow-hidden transition-[max-height] duration-300 ease-out transform-gpu will-change-[max-height]" 
                      :class="showToolsPanel ? 'max-h-[330px]' : 'max-h-0'">
                     <div>
