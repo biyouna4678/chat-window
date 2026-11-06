@@ -4,18 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
-    <title>液态玻璃通讯 (最终无Bug版)</title>
+    <title>液态玻璃通讯 (终极排查版)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
-    <!-- 引入字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@500;600;700;900&family=Playfair+Display:ital,wght@1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- 引入样式 -->
     <link rel="stylesheet" href="./css/style.css">
     
-    <!-- 引入模块化 JS -->
     <script src="./js/chat.js"></script>
     <script src="./js/call.js"></script>
     <script src="./js/map.js"></script>
@@ -29,17 +25,17 @@
     background-attachment: scroll;
 ">
 
-    <!-- 组合所有逻辑 -->
+    <!-- 【调试监视器】放在最外层，看看变量到底变没变 -->
+    <div class="fixed top-0 left-0 z-[9999] bg-black text-green-400 text-xs p-1 pointer-events-none" x-data="{ ...chatApp() }" x-text="'panel=' + showToolsPanel + ' n=' + (window.__n||0)"></div>
+
     <div class="w-full px-0 flex flex-col h-screen relative" 
          x-data="{ ...chatApp(), ...callManager(), ...mapManager(), ...transferManager() }" 
          x-init="initChat(); initCall();"
          @beforeunload.window="stopTimer(); stopCamera(); if(recognition) recognition.stop();">
 
-        <!-- 隐藏文件输入 -->
         <input type="file" id="native-file-picker" accept="image/*" class="hidden" @change="handleImageUpload($event)">
         <input type="file" id="native-camera-picker" accept="image/*" capture="environment" class="hidden" @change="handleImageUpload($event)">
 
-        <!-- ================= 1. 聊天主界面 ================= -->
         <div class="w-full h-full flex flex-col transition-all duration-300"
              :class="callState !== 'idle' && !isMinimized ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'">
             
@@ -107,24 +103,18 @@
                                 <div class="border-t border-dashed border-gray-400/60 w-full mb-2.5"></div>
                             </div>
 
-                            <!-- 文字 -->
                             <template x-if="msg.type === 'text'">
-                                <div class="wet-glass px-4 py-2.5 text-gray-900 text-[15px] leading-snug text-left w-fit break-words pointer-events-auto" 
-                                     :class="msg.sender === 'me' ? 'rounded-[22px] rounded-br-[6px]' : 'rounded-[22px] rounded-bl-[6px]'">
+                                <div class="wet-glass px-4 py-2.5 text-gray-900 text-[15px] leading-snug text-left w-fit break-words pointer-events-auto" :class="msg.sender === 'me' ? 'rounded-[22px] rounded-br-[6px]' : 'rounded-[22px] rounded-bl-[6px]'">
                                     <p x-text="msg.text"></p>
                                 </div>
                             </template>
 
-                            <!-- 图片 -->
                             <template x-if="msg.type === 'image'">
-                                <div class="relative pointer-events-auto overflow-hidden shadow-sm border border-white/50 bg-black/10 cursor-pointer active:scale-95 transition-transform"
-                                     :class="msg.sender === 'me' ? 'rounded-[22px] rounded-br-[6px]' : 'rounded-[22px] rounded-bl-[6px]'"
-                                     @click="previewImageUrl = msg.url; showImagePreview = true;">
+                                <div class="relative pointer-events-auto overflow-hidden shadow-sm border border-white/50 bg-black/10 cursor-pointer active:scale-95 transition-transform" :class="msg.sender === 'me' ? 'rounded-[22px] rounded-br-[6px]' : 'rounded-[22px] rounded-bl-[6px]'" @click="previewImageUrl = msg.url; showImagePreview = true;">
                                     <img :src="msg.url" class="max-w-[200px] h-auto object-cover block">
                                 </div>
                             </template>
 
-                            <!-- 位置 -->
                             <template x-if="msg.type === 'location'">
                                 <div class="chat-location-card cursor-pointer active:scale-95 transition-transform" @click="selectedLocation = msg.data; showLocationDetail = true;">
                                     <div class="card-header wet-glass">
@@ -133,9 +123,7 @@
                                     </div>
                                     <div class="card-map">
                                         <div class="silver-marker-container">
-                                            <div class="pin-shadow"></div>
-                                            <div class="hologram-beam"></div>
-                                            <div class="hologram-ring"></div>
+                                            <div class="pin-shadow"></div><div class="hologram-beam"></div><div class="hologram-ring"></div>
                                             <svg class="pin-svg" viewBox="0 0 48 56" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <defs><linearGradient id="silverGradientCard" x1="10" y1="4" x2="38" y2="44" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="40%" stop-color="#F0F0F0"/><stop offset="100%" stop-color="#A0A0A0"/></linearGradient></defs>
                                                 <path d="M24 4C14.06 4 6 12.06 6 22c0 12 18 30 18 30s18-18 18-30c0-9.94-8.06-18-18-18zm0 26c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z" fill="url(#silverGradientCard)"/>
@@ -147,18 +135,11 @@
                                 </div>
                             </template>
 
-                            <!-- 信笺转账卡片 -->
                             <template x-if="msg.type === 'transfer'">
-                                <div class="wet-glass letter-card" 
-                                     :class="{
-                                         'state-received': msg.data.status === 'accepted',
-                                         'state-returned': msg.data.status === 'rejected'
-                                     }">
+                                <div class="wet-glass letter-card" :class="{'state-received': msg.data.status === 'accepted', 'state-returned': msg.data.status === 'rejected'}">
                                     <div class="letter-header">
                                         <div class="to-text" x-text="msg.sender === 'me' ? 'To. Yosali' : 'From. Yosali'"></div>
-                                        <div class="status-text" 
-                                             x-text="msg.data.status === 'accepted' ? '已收 · RECEIVED' : (msg.data.status === 'rejected' ? '已退回 · RETURNED' : msg.time)">
-                                        </div>
+                                        <div class="status-text" x-text="msg.data.status === 'accepted' ? '已收 · RECEIVED' : (msg.data.status === 'rejected' ? '已退回 · RETURNED' : msg.time)"></div>
                                     </div>
                                     <div class="amount-wrapper">
                                         <span class="currency">¥</span><span class="amount" x-text="msg.data.amount"></span>
@@ -166,17 +147,15 @@
                                     <div class="message" x-text="msg.data.message || '无留言'"></div>
                                 </div>
                             </template>
-
                         </div>
                     </div>
                 </template>
             </div>
 
-            <!-- ================= 底部输入区 (彻底修复版) ================= -->
-            <!-- 移除了所有多余的过渡动画和变化的 pb 值 -->
-            <div class="shrink-0 flex flex-col w-full z-50 mt-auto">
+            <!-- ================= 底部输入区 ================= -->
+            <div class="shrink-0 w-full z-50 mt-auto bg-transparent relative">
                 <!-- 输入框：固定底部间距 -->
-                <div class="px-4 pb-4 shrink-0">
+                <div class="px-4 pb-8">
                     <div class="wet-glass rounded-[26px] h-[52px] p-1 px-2 flex items-center gap-1.5 w-full shadow-lg">
                         <button class="shrink-0 p-1 rounded-full hover:bg-white/20 transition-colors"><img src="https://i.ibb.co/tTcTvwCX/731-20261005164940.png" class="w-6 h-6 object-contain"></button>
                         <textarea rows="1" x-model="messageText" @keydown.enter.prevent="sendMessage()" placeholder="Send message..." class="flex-1 min-w-0 bg-transparent py-2 px-1 text-[15px] leading-snug text-gray-900 outline-none placeholder:text-gray-500 resize-none max-h-[38px] overflow-y-auto"></textarea>
@@ -184,7 +163,13 @@
                         <template x-if="!hasText()">
                             <div class="flex items-center gap-1 shrink-0">
                                 <button class="p-1 rounded-full hover:bg-white/20"><img src="https://i.ibb.co/LdWwXVF4/731-20261005164859.png" class="w-6 h-6 object-contain"></button>
-                                <button @click="showToolsPanel = !showToolsPanel; currentPage = 0;" :class="{'bg-white/30': showToolsPanel}" class="p-1 rounded-full hover:bg-white/20 flex items-center justify-center shrink-0 w-8 h-8">
+                                <!-- 核心修复：防抢夺焦点，防默认双击 -->
+                                <button type="button" 
+                                        @mousedown.prevent 
+                                        @touchstart.prevent
+                                        @click="window.__n=(window.__n||0)+1; showToolsPanel = !showToolsPanel;" 
+                                        :class="{'bg-white/30': showToolsPanel}" 
+                                        class="p-1 rounded-full hover:bg-white/20 flex items-center justify-center shrink-0 w-8 h-8">
                                     <img src="https://i.ibb.co/WNDxx6q1/739-20261031094001.png" class="w-7 h-7 object-contain scale-125">
                                 </button>
                             </div>
@@ -199,9 +184,9 @@
                     </div>
                 </div>
 
-                <!-- 工具栏：仅使用 grid 控制展开和收起 -->
-                <div class="grid transition-[grid-template-rows] duration-300 ease-in-out w-full" :class="showToolsPanel ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
-                    <div class="overflow-hidden">
+                <!-- 工具栏：严格 grid 动画，内层加 overflow-hidden -->
+                <div class="grid-transition w-full" :class="showToolsPanel ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
+                    <div class="min-h-0 overflow-hidden">
                         <div class="bg-[#f3f4f6] w-full rounded-t-[28px] shadow-[0_-10px_30px_rgba(0,0,0,0.05)] border-t border-white/60 flex flex-col h-[330px]" @touchstart="handleTouchStart($event)" @touchend="handleTouchEnd($event)">
                             <div class="w-10 h-1.5 bg-gray-300 rounded-full mx-auto mt-4 mb-2 shrink-0"></div>
                             <div class="flex-1 relative px-4 pt-2">
@@ -328,9 +313,9 @@
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" /></svg>
                     </button>
                     <div x-show="showCallSettings" @click="showCallSettings = false" class="fixed inset-0 z-[90] bg-transparent"></div>
-                    <div x-show="showCallSettings" class="absolute right-0 top-14 w-[200px] ios-menu rounded-2xl overflow-hidden text-[7515px] text-white z-[100]- pointer-events-auto" style="display4: none;">
-                        <button type="button" @click.stop.="startMode = 'them'"365 class="w-full  text-left flex justify-between items-center px-94 py-3 border-b border-white/10 active.:bg-white/20"><span>对方75先说</span><svg x-show="startMode === '-them'" class="w-5 h-5 text-white9" viewBox="0 0 24 24". fill="currentColor"><path fill-rule="evenodd" d="M752.25 12c0-5.385  4.365-9.75 9.75-99.75s9..75 4.365 9.75 9.75-754.365 9.75-9.75 S9.75S2.25 172.385 2.25 12zm.13.36-1.814a.75.7525 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></button>
-                        <button type="button" @click.stop="startMode = 'me'" class="w-full text-left flex justify-between items-center px-4 py-3 border-b border-white/10 active:bg-white/20"><span>我先说</span><svg x-show="startMode === 'me'" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9. 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></button>
+                    <div x-show="showCallSettings" class="absolute right-0 top-14 w-[200px] ios-menu rounded-2xl overflow-hidden text-[15px] text-white z-[100] pointer-events-auto" style="display: none;">
+                        <button type="button" @click.stop="startMode = 'them'" class="w-full text-left flex justify-between items-center px-4 py-3 border-b border-white/10 active:bg-white/20"><span>对方先说</span><svg x-show="startMode === 'them'" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></button>
+                        <button type="button" @click.stop="startMode = 'me'" class="w-full text-left flex justify-between items-center px-4 py-3 border-b border-white/10 active:bg-white/20"><span>我先说</span><svg x-show="startMode === 'me'" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></button>
                         <button type="button" @click.stop="subtitlesOn = !subtitlesOn" class="w-full text-left flex justify-between items-center px-4 py-3 active:bg-white/20"><span>字幕显示</span><span class="text-gray-400 text-sm" x-text="subtitlesOn ? '已开启' : '已关闭'"></span></button>
                     </div>
                 </div>
@@ -701,27 +686,4 @@
              class="fixed inset-0 z-[630] flex items-center justify-center px-4 bg-black/40 backdrop-blur-sm"
              @click.self="isSuccessModalOpen = false; setTimeout(() => amount = '', 300);">
             <div class="w-[300px] bg-white rounded-[28px] p-8 relative shadow-2xl flex flex-col items-center animate-pop-in">
-                <div class="w-16 h-16 rounded-full bg-[#3f454d] flex items-center justify-center mb-6 shadow-[0_4px_12px_rgba(63,69,77,0.3)]">
-                    <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                </div>
-                <h2 class="text-[20px] font-bold text-[#1a1d20] mb-2 tracking-wide">转账成功</h2>
-                <div class="text-[36px] font-extrabold text-[#1a1d20] font-mono leading-none mb-6">
-                    <span class="text-[24px] font-semibold mr-1">¥</span><span x-text="amount || '0.00'"></span>
-                </div>
-                <div class="w-full bg-[#f4f5f8] rounded-[16px] p-4 flex flex-col gap-3 mb-8">
-                    <div class="flex items-start justify-between">
-                        <span class="text-[13px] text-gray-500 font-medium">留言</span>
-                        <span class="text-[13px] text-[#1a1d20] font-medium text-right max-w-[160px] leading-relaxed" x-text="message || '无'"></span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-[13px] text-gray-500 font-medium">支付方式</span>
-                        <span class="text-[13px] text-[#1a1d20] font-medium" x-text="successPayMethodInfo"></span>
-                    </div>
-                </div>
-                <button @click="isSuccessModalOpen = false; setTimeout(() => amount = '', 300);" class="w-full py-3.5 rounded-[14px] bg-[#1a1d20] text-white font-bold text-[15px] shadow-lg active:scale-[0.98] transition-transform">完成</button>
-            </div>
-        </div>
-
-    </div>
-</body>
-</html>
+                <div class="w-16 h-16 rounded-full bg-[#3f454d] flex items-center justify-center mb-6 shadow-[0_4px_12px_rgba(63,69,77,0.3
