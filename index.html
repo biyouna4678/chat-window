@@ -2,12 +2,14 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <!-- PWA 核心：保留 viewport-fit=cover 以铺满刘海屏 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
     
+    <!-- PWA 全屏配置 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#f3f4f6">
+    <meta name="theme-color" content="#1a1a1a">
     <link rel="manifest" href="./manifest.json">
 
     <title>液态玻璃通讯</title>
@@ -15,9 +17,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
+    <!-- 引入字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@500;600;700;900&family=Playfair+Display:ital,wght@1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 引入样式 -->
     <link rel="stylesheet" href="./css/style.css">
     
+    <!-- 引入模块化 JS -->
     <script src="./js/chat.js"></script>
     <script src="./js/call.js"></script>
     <script src="./js/map.js"></script>
@@ -25,12 +31,13 @@
 </head>
 <body class="font-sans antialiased overflow-hidden">
 
-    <!-- 删掉了 bg-layer，根容器直接自带背景图 -->
-    <div class="pwa-root flex flex-col relative" 
+    <!-- 根容器：不再需要多余的背景层和 relative 类 -->
+    <div class="pwa-root flex flex-col" 
          x-data="{ ...chatApp(), ...callManager(), ...mapManager(), ...transferManager() }" 
          x-init="initChat(); initCall();"
          @beforeunload.window="stopTimer(); stopCamera(); if(recognition) recognition.stop();">
 
+        <!-- 隐藏文件输入 -->
         <input type="file" id="native-file-picker" accept="image/*" class="hidden" @change="handleImageUpload($event)">
         <input type="file" id="native-camera-picker" accept="image/*" capture="environment" class="hidden" @change="handleImageUpload($event)">
 
@@ -38,6 +45,7 @@
         <div class="w-full h-full flex flex-col transition-all duration-300"
              :class="callState !== 'idle' && !isMinimized ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'">
             
+            <!-- 顶部固定栏 -->
             <div class="flex items-center justify-between w-full gap-2 shrink-0 mb-4 px-3 relative z-40 pwa-top-safe">
                 <div class="wet-glass rounded-full h-[56px] px-3 flex items-center w-fit max-w-[75%] transition-all duration-300">
                     <button class="p-1 ml-0 text-black hover:text-black transition-colors rounded-full hover:bg-white/20 shrink-0" @click="alert('执行返回操作')">
@@ -80,6 +88,7 @@
                 </div>
             </div>
 
+            <!-- 消息流 -->
             <div class="flex-1 overflow-y-auto pb-6 flex flex-col gap-5 px-4 relative z-10 hide-scrollbar" id="chat-scroll">
                 <template x-for="(msg, index) in messages" :key="msg.id">
                     <div class="flex w-full animate-fade-in-up" :class="msg.sender === 'me' ? 'justify-end' : 'justify-start'">
@@ -100,6 +109,7 @@
                                 <div class="border-t border-dashed border-gray-400/60 w-full mb-2.5"></div>
                             </div>
 
+                            <!-- 文字 -->
                             <template x-if="msg.type === 'text'">
                                 <div class="wet-glass px-4 py-2.5 text-gray-900 text-[15px] leading-snug text-left w-fit break-words pointer-events-auto" 
                                      :class="msg.sender === 'me' ? 'rounded-[22px] rounded-br-[6px]' : 'rounded-[22px] rounded-bl-[6px]'">
@@ -107,6 +117,7 @@
                                 </div>
                             </template>
 
+                            <!-- 图片 -->
                             <template x-if="msg.type === 'image'">
                                 <div class="relative pointer-events-auto overflow-hidden shadow-sm border border-white/50 bg-black/10 cursor-pointer active:scale-95 transition-transform"
                                      :class="msg.sender === 'me' ? 'rounded-[22px] rounded-br-[6px]' : 'rounded-[22px] rounded-bl-[6px]'"
@@ -115,6 +126,7 @@
                                 </div>
                             </template>
 
+                            <!-- 位置 -->
                             <template x-if="msg.type === 'location'">
                                 <div class="chat-location-card cursor-pointer active:scale-95 transition-transform" @click="selectedLocation = msg.data; showLocationDetail = true;">
                                     <div class="card-header wet-glass">
@@ -137,6 +149,7 @@
                                 </div>
                             </template>
 
+                            <!-- 信笺转账卡片 -->
                             <template x-if="msg.type === 'transfer'">
                                 <div class="wet-glass letter-card" 
                                      :class="{
@@ -471,9 +484,9 @@
                             </button>
                         </div>
                     </div>
-                    <div class="flex flex-col items-center w-1/3 gap-6">
-                        <div class="flex flex-col items-center gap-2 cursor-pointer" @click="toggleCamera()">
-                            <button class="w-[68px] h-[68px] rounded-full flex items-center justify-center shadow-lg" :class="cameraOn ? 'bg-white text-black' : 'bg-gray-400 text-white'">
+                    <div class="flex ? flex-col items-center w-1/3 gap-6">
+                        <div class="flex flex '-col items-center gap-2 cursor-pointer等待" @click="toggleCamera()">
+                            <button class="w-[接68px] h-[68px] rounded听-full flex items-center justify-center shadow-lg" :class="'cameraOn ? 'bg-white text-black' : 'bg-gray-400 text-white'">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8"><rect x="2" y="6" width="13" height="12" rx="3.5" ry="3.5" /><path d="M16 10l5.5-3v10l-5.5-3z" /></svg>
                             </button>
                             <span class="text-white text-[12px] whitespace-nowrap" x-text="cameraOn ? '摄像头已开' : '摄像头已关'"></span>
@@ -526,7 +539,7 @@
                      </div>
                  </template>
              </div>
-             <span class="text-gray-800 font-bold text-[11px] font-mono" x-text="callState === 'active' ? callTimer : (callState === 'calling' ? '等待接听' : '来电...')"></span>
+             <span class="text-gray-800 font-bold text-[11px] font-mono" x-text="callState === 'active' ? callTimer : (callState === 'calling' : '来电...')"></span>
         </div>
 
         <!-- ======================== 转账弹窗群 ======================== -->
@@ -563,9 +576,9 @@
                          @click="togglePayMethod">
                         <div class="flex items-center gap-2.5 w-full">
                             <svg x-show="payMethod === 'balance'" class="w-5 h-5 fill-[#3f454d] flex-shrink-0" viewBox="0 0 24 24"><path d="M19 7V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-2h-4a3 3 0 0 1 0-6h4zm-4 8h4v-4h-4c-1.1 0-2 .9-2 2s.9 2 2 2zm2 4H5V5h12v2h-5c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h7v2z"/></svg>
-                            <svg x-show="payMethod === 'bankCard'" class="w-5 h-5 fill-[#3f454d] flex-shrink-0" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
-                            <span class="text-[15px] font-semibold text-[#1a1d20]" x-text="payMethod === 'balance' ? '零钱' : '银行卡支付'"></span>
-                            <span class="text-[12px] text-gray-400 ml-auto mr-2 font-medium" x-show="payMethod === 'balance'">¥ 8,888.00</span>
+                            <svg x-show="payMethod === 'bankCard'" class="w-5 h-5 fill-[#3f454d] flex-shr @ink-0" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+                            <span class="text-[15px] font-semibold text-[#1a1d20]" x-text="payMethod === 'balance'click ? '零钱' : '="银行卡支付'"></span>
+is                            <span class="textBankCard-[12px] text-gray-400 ml-auto mr-2 font-medium" x-show="payMethod === 'balance'">¥ 8,888.00</span>
                         </div>
                         <svg class="w-4 h-4 stroke-gray-400 stroke-2 fill-none flex-shrink-0" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
@@ -585,7 +598,7 @@
                  :class="isBankCardModalOpen ? 'opacity-100' : 'opacity-0'"></div>
             <div class="relative w-full max-w-md bg-[#F2F2F7] rounded-t-[32px] p-6 pb-10 transition-transform duration-300 transform flex flex-col max-h-[85vh]"
                  :class="isBankCardModalOpen ? 'translate-y-0' : 'translate-y-full'">
-                <button @click="isBankCardModalOpen = false" 
+                <buttonModalOpen = false" 
                         class="absolute top-6 left-6 w-8 h-8 rounded-full bg-gray-200/80 flex items-center justify-center active:bg-gray-300 transition-colors z-10">
                     <svg class="w-4 h-4 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
@@ -716,6 +729,7 @@
 
     </div>
 
+    <!-- 注册 Service Worker 以激活 PWA -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
