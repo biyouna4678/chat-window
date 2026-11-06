@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
-    <title>液态玻璃通讯 (完美完全体)</title>
+    <title>液态玻璃通讯 (最终无Bug版)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -172,8 +172,8 @@
                 </template>
             </div>
 
-            <!-- 底部输入区 -->
-            <div class="shrink-0 flex flex-col w-full z-[60] mt-auto" :class="showToolsPanel ? 'pb-0' : 'pb-8'">
+            <!-- ================= 底部输入区 (完全恢复你给的正常版本) ================= -->
+            <div class="shrink-0 flex flex-col w-full z-50 mt-auto transition-all duration-300 ease-in-out" :class="showToolsPanel ? 'pb-0' : 'pb-8'">
                 <div class="px-4 pb-4 shrink-0">
                     <div class="wet-glass rounded-[26px] h-[52px] p-1 px-2 flex items-center gap-1.5 w-full shadow-lg">
                         <button class="shrink-0 p-1 rounded-full hover:bg-white/20 transition-colors"><img src="https://i.ibb.co/tTcTvwCX/731-20261005164940.png" class="w-6 h-6 object-contain"></button>
@@ -182,7 +182,8 @@
                         <template x-if="!hasText()">
                             <div class="flex items-center gap-1 shrink-0">
                                 <button class="p-1 rounded-full hover:bg-white/20"><img src="https://i.ibb.co/LdWwXVF4/731-20261005164859.png" class="w-6 h-6 object-contain"></button>
-                                <button @click.stop="showToolsPanel = !showToolsPanel; currentPage = 0;" :class="{'bg-white/30': showToolsPanel}" class="p-1 rounded-full hover:bg-white/20 flex items-center justify-center shrink-0 w-8 h-8">
+                                <!-- 去掉了 .stop，恢复原版逻辑 -->
+                                <button @click="showToolsPanel = !showToolsPanel; currentPage = 0;" :class="{'bg-white/30': showToolsPanel}" class="p-1 rounded-full hover:bg-white/20 flex items-center justify-center shrink-0 w-8 h-8">
                                     <img src="https://i.ibb.co/WNDxx6q1/739-20261031094001.png" class="w-7 h-7 object-contain scale-125">
                                 </button>
                             </div>
@@ -309,7 +310,6 @@
         </div>
 
         <!-- ================= 语音通话 ================= -->
-        <!-- 【修复】提升头部层级到 z-30，防止被中间头像盖住 -->
         <div x-show="callType === 'voice' && callState !== 'idle' && !isMinimized" x-transition.opacity class="fixed inset-0 z-[100] flex flex-col justify-between pt-14 pb-10 px-6 bg-gray-900 overflow-hidden" style="display: none;">
             <div class="absolute inset-0 z-0 bg-black"></div>
             <div class="flex justify-between items-center w-full shrink-0 relative z-30">
@@ -350,7 +350,6 @@
                     <div x-show="callState === 'calling'" class="text-gray-300 text-sm">正在邀请对方进行语音通话…</div>
                     <div x-show="callState === 'receiving'" class="text-gray-300 text-sm animate-pulse">对方正在邀请你进行语音通话…</div>
                 </div>
-                <!-- 【修复】给字幕容器加上 mb-6 增加间距 -->
                 <div x-show="callState === 'active' && subtitlesOn" x-ref="subtitleBox" class="w-full max-w-[85%] max-h-[160px] overflow-y-auto flex flex-col gap-3 relative px-2 pointer-events-auto hide-scrollbar mb-6" style="mask-image: linear-gradient(to bottom, transparent, black 10%, black 100%); -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 100%);">
                     <template x-for="(sub, index) in voiceSubtitles" :key="index">
                         <div class="flex flex-col items-center animate-fade-in-up">
