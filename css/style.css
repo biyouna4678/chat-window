@@ -211,33 +211,29 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 .state-returned .amount::after { content: ''; position: absolute; top: 50%; left: -2px; right: -2px; height: 1px; background-color: rgba(255, 255, 255, 0.7); transform: translateY(-50%); }
 .state-returned .status-text { color: rgba(255, 255, 255, 0.5); }
 
-/* ================= 5. PWA 全屏无白边与性能加速终极代码 ================= */
-html, body {
+/* ================= 5. PWA 全屏无白边核心代码 ================= */
+/* 移除所有乱七八糟的 z-index 和黑底，直接把背景图写在 html 上铺满 Canvas */
+html {
   height: 100%;
   margin: 0;
   overscroll-behavior: none;
-  background-color: #1a1a1a; /* 深色兜底，避免白闪 */
-}
-
-/* 向下延伸背景，填补安全区 */
-.bg-layer {
-  position: fixed;
-  left: 0; right: 0; top: 0;
-  bottom: calc(-1 * env(safe-area-inset-bottom)); 
   background-image: url('https://i.ibb.co/VWmvYVTV/IMG-7150.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  z-index: 0; /* 修复：从 -1 改为 0，防止被 body 背景遮挡 */
-  pointer-events: none;
 }
 
-/* 四边定位的根容器，彻底抛弃 100vh */
+body {
+  height: 100%;
+  margin: 0;
+  background-color: transparent; /* 保证完全透明，露出 html 的背景图 */
+}
+
+/* 四边定位的根容器 */
 .pwa-root {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   overflow: hidden;
-  z-index: 10; /* 修复：确保 UI 层在背景图之上 */
 }
 
 /* 顶部安全区 */
@@ -266,9 +262,5 @@ html, body {
     width: 100%;
     max-width: 480px;
     box-shadow: 0 0 40px rgba(0,0,0,0.15);
-  }
-  .bg-layer {
-    /* 桌面端不需要向下延伸 */
-    bottom: 0;
   }
 }
