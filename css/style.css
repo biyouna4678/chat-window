@@ -10,8 +10,6 @@ body {
     user-select: none;
     -webkit-touch-callout: none;
     touch-action: manipulation;
-    /* 强制 body 深色兜底，防止任何情况下的纯白刺眼 */
-    background-color: #1a1a1a !important; 
 }
 textarea, input { -webkit-user-select: text; user-select: text; }
 
@@ -213,13 +211,14 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 .state-returned .amount::after { content: ''; position: absolute; top: 50%; left: -2px; right: -2px; height: 1px; background-color: rgba(255, 255, 255, 0.7); transform: translateY(-50%); }
 .state-returned .status-text { color: rgba(255, 255, 255, 0.5); }
 
-/* ================= 5. PWA 稳如老狗的布局 (重新加回兜底色) ================= */
+/* ================= 5. PWA 布局与纯粹壁纸 ================= */
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden; 
-  background-color: #1a1a1a; /* 防白闪兜底 */
+  /* 完全透明，去掉任何黑灰底色 */
+  background-color: transparent; 
 }
 
 .pwa-root {
@@ -228,11 +227,8 @@ html, body {
   display: flex;
   flex-direction: column;
   
-  /* 替换为你提供的新 URL，并加一层深色渐变兜底 */
-  background-color: #2c2c2c; 
-  background-image: 
-    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), /* 增加一点暗度，让白字更清晰 */
-    url('https://i.ibb.co/twzpmf44/IMG-7150.jpg');
+  /* 替换为你提供的新壁纸链接，去掉了深色兜底 */
+  background-image: url('https://i.ibb.co/twzpmf44/IMG-7150.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -254,7 +250,7 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #e5e7eb;
+    background: #e5e7eb; /* 桌面端外侧留白颜色，不影响手机 */
   }
   .pwa-root {
     max-width: 480px; 
