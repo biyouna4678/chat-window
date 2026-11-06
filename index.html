@@ -2,43 +2,38 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- PWA 核心：保留 viewport-fit=cover 以铺满刘海屏 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
     
-    <!-- PWA 全屏配置 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#f3f4f6">
     <link rel="manifest" href="./manifest.json">
 
-    <title>液态玻璃通讯 (PWA完美全屏版)</title>
+    <title>液态玻璃通讯</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
-    <!-- 引入字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@500;600;700;900&family=Playfair+Display:ital,wght@1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- 引入样式 -->
     <link rel="stylesheet" href="./css/style.css">
     
-    <!-- 引入模块化 JS -->
     <script src="./js/chat.js"></script>
     <script src="./js/call.js"></script>
     <script src="./js/map.js"></script>
     <script src="./js/transfer.js"></script>
 </head>
-<!-- 修改点：去掉了 bg-[#1a1a1a] 黑底 -->
 <body class="font-sans antialiased overflow-hidden">
 
-    <!-- 根容器 -->
+    <!-- 专属背景层：负责铺满全屏（含安全区） -->
+    <div class="bg-layer"></div>
+
+    <!-- 根容器：负责 UI -->
     <div class="pwa-root flex flex-col relative" 
          x-data="{ ...chatApp(), ...callManager(), ...mapManager(), ...transferManager() }" 
          x-init="initChat(); initCall();"
          @beforeunload.window="stopTimer(); stopCamera(); if(recognition) recognition.stop();">
 
-        <!-- 隐藏文件输入 -->
         <input type="file" id="native-file-picker" accept="image/*" class="hidden" @change="handleImageUpload($event)">
         <input type="file" id="native-camera-picker" accept="image/*" capture="environment" class="hidden" @change="handleImageUpload($event)">
 
@@ -46,7 +41,6 @@
         <div class="w-full h-full flex flex-col transition-all duration-300"
              :class="callState !== 'idle' && !isMinimized ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'">
             
-            <!-- 顶部固定栏 -->
             <div class="flex items-center justify-between w-full gap-2 shrink-0 mb-4 px-3 relative z-40 pwa-top-safe">
                 <div class="wet-glass rounded-full h-[56px] px-3 flex items-center w-fit max-w-[75%] transition-all duration-300">
                     <button class="p-1 ml-0 text-black hover:text-black transition-colors rounded-full hover:bg-white/20 shrink-0" @click="alert('执行返回操作')">
@@ -89,7 +83,6 @@
                 </div>
             </div>
 
-            <!-- 消息流 -->
             <div class="flex-1 overflow-y-auto pb-6 flex flex-col gap-5 px-4 relative z-10 hide-scrollbar" id="chat-scroll">
                 <template x-for="(msg, index) in messages" :key="msg.id">
                     <div class="flex w-full animate-fade-in-up" :class="msg.sender === 'me' ? 'justify-end' : 'justify-start'">
@@ -110,7 +103,6 @@
                                 <div class="border-t border-dashed border-gray-400/60 w-full mb-2.5"></div>
                             </div>
 
-                            <!-- 文字 -->
                             <template x-if="msg.type === 'text'">
                                 <div class="wet-glass px-4 py-2.5 text-gray-900 text-[15px] leading-snug text-left w-fit break-words pointer-events-auto" 
                                      :class="msg.sender === 'me' ? 'rounded-[22px] rounded-br-[6px]' : 'rounded-[22px] rounded-bl-[6px]'">
@@ -118,7 +110,6 @@
                                 </div>
                             </template>
 
-                            <!-- 图片 -->
                             <template x-if="msg.type === 'image'">
                                 <div class="relative pointer-events-auto overflow-hidden shadow-sm border border-white/50 bg-black/10 cursor-pointer active:scale-95 transition-transform"
                                      :class="msg.sender === 'me' ? 'rounded-[22px] rounded-br-[6px]' : 'rounded-[22px] rounded-bl-[6px]'"
@@ -127,7 +118,6 @@
                                 </div>
                             </template>
 
-                            <!-- 位置 -->
                             <template x-if="msg.type === 'location'">
                                 <div class="chat-location-card cursor-pointer active:scale-95 transition-transform" @click="selectedLocation = msg.data; showLocationDetail = true;">
                                     <div class="card-header wet-glass">
@@ -150,7 +140,6 @@
                                 </div>
                             </template>
 
-                            <!-- 信笺转账卡片 -->
                             <template x-if="msg.type === 'transfer'">
                                 <div class="wet-glass letter-card" 
                                      :class="{
@@ -730,7 +719,6 @@
 
     </div>
 
-    <!-- 注册 Service Worker 以激活 PWA -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
