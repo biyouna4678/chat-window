@@ -17,11 +17,11 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@500;600;700;900&family=Playfair+Display:ital,wght@1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="./css/style.css?v=10">
-    <script src="./js/chat.js?v=10"></script>
-    <script src="./js/call.js?v=10"></script>
-    <script src="./js/map.js?v=10"></script>
-    <script src="./js/transfer.js?v=10"></script>
+    <link rel="stylesheet" href="./css/style.css?v=11">
+    <script src="./js/chat.js?v=11"></script>
+    <script src="./js/call.js?v=11"></script>
+    <script src="./js/map.js?v=11"></script>
+    <script src="./js/transfer.js?v=11"></script>
 </head>
 <body class="font-sans antialiased overflow-hidden">
 
@@ -166,11 +166,13 @@
             <!-- ================= 底部输入区 ================= -->
             <div class="shrink-0 w-full z-50 bg-transparent relative">
                 
-                <!-- 修复：因为 pwa-root 没到底，所以去掉 env() 的叠加，直接用 pb-4 -->
-                <div class="px-4 pb-4">
+                <!-- 核心修正：使用 pwa-bottom-safe 替换之前的 pb-4 -->
+                <div class="px-4 pwa-bottom-safe">
                     <div class="wet-glass rounded-[26px] h-[52px] p-1 px-2 flex items-center gap-1.5 w-full shadow-lg">
                         <button class="shrink-0 p-1 rounded-full hover:bg-white/20 transition-colors"><img src="https://i.ibb.co/tTcTvwCX/731-20261005164940.png" class="w-6 h-6 object-contain"></button>
-                        <textarea rows="1" x-model="messageText" @keydown.enter.prevent="sendMessage()" placeholder="Send message..." class="flex-1 min-w-0 bg-transparent py-2 px-1 text-[15px] leading-snug text-gray-900 outline-none placeholder:text-gray-500 resize-none max-h-[38px] overflow-y-auto"></textarea>
+                        
+                        <!-- 关键防放大：text-[16px] 严禁低于 16px -->
+                        <textarea rows="1" x-model="messageText" @keydown.enter.prevent="sendMessage()" placeholder="Send message..." class="flex-1 min-w-0 bg-transparent py-2 px-1 text-[16px] leading-snug text-gray-900 outline-none placeholder:text-gray-500 resize-none max-h-[38px] overflow-y-auto"></textarea>
                         
                         <template x-if="!hasText()">
                             <div class="flex items-center gap-1 shrink-0">
@@ -205,34 +207,37 @@
                 <div class="w-full overflow-hidden transition-[max-height] duration-300 ease-out transform-gpu will-change-[max-height] max-h-0" 
                      :class="showToolsPanel ? 'max-h-[330px]' : 'max-h-0'">
                     <div>
-                        <div class="bg-[#f3f4f6] w-full rounded-t-[28px] shadow-[0_-10px_30px_rgba(0,0,0,0.05)] border-t border-white/60 flex flex-col h-[330px]" @touchstart="handleTouchStart($event)" @touchend="handleTouchEnd($event)">
-                            <div class="w-10 h-1.5 bg-gray-300 rounded-full mx-auto mt-4 mb-2 shrink-0"></div>
-                            <div class="flex-1 relative px-4 pt-2">
-                                <div x-show="currentPage === 0" x-transition.opacity class="grid grid-cols-4 gap-y-4 gap-x-2 w-full">
-                                    <template x-for="(item, index) in page1" :key="index">
-                                        <div class="flex flex-col items-center gap-1.5 cursor-pointer group" @click="handleToolClick(item)">
-                                            <div class="w-[64px] h-[64px] bg-white rounded-[22px] flex items-center justify-center shadow-sm group-active:scale-95 transition-transform">
-                                                <img :src="item.icon" class="w-10 h-10 object-contain opacity-[0.65] grayscale">
+                        <!-- 工具箱底部加 pwa-panel-bottom-safe，防止撑破安全区 -->
+                        <div class="bg-[#f3f4f6] w-full rounded-t-[28px] shadow-[0_-10px_30px_rgba(0,0,0,0.05)] border-t border-white/60 flex flex-col pwa-panel-bottom-safe" @touchstart="handleTouchStart($event)" @touchend="handleTouchEnd($event)">
+                            <div class="h-[330px] flex flex-col w-full">
+                                <div class="w-10 h-1.5 bg-gray-300 rounded-full mx-auto mt-4 mb-2 shrink-0"></div>
+                                <div class="flex-1 relative px-4 pt-2">
+                                    <div x-show="currentPage === 0" x-transition.opacity class="grid grid-cols-4 gap-y-4 gap-x-2 w-full">
+                                        <template x-for="(item, index) in page1" :key="index">
+                                            <div class="flex flex-col items-center gap-1.5 cursor-pointer group" @click="handleToolClick(item)">
+                                                <div class="w-[64px] h-[64px] bg-white rounded-[22px] flex items-center justify-center shadow-sm group-active:scale-95 transition-transform">
+                                                    <img :src="item.icon" class="w-10 h-10 object-contain opacity-[0.65] grayscale">
+                                                </div>
+                                                <span class="text-[13px] text-gray-800 font-medium whitespace-nowrap" x-text="item.name"></span>
                                             </div>
-                                            <span class="text-[13px] text-gray-800 font-medium whitespace-nowrap" x-text="item.name"></span>
-                                        </div>
-                                    </template>
-                                </div>
-                                <div x-show="currentPage === 1" x-transition.opacity class="grid grid-cols-4 gap-y-4 gap-x-2 w-full absolute top-2 left-0 px-4">
-                                    <template x-for="(item, index) in page2" :key="index">
-                                        <div class="flex flex-col items-center gap-1.5 cursor-pointer group" @click="handleToolClick(item)">
-                                            <div class="w-[64px] h-[64px] bg-white rounded-[22px] flex items-center justify-center shadow-sm group-active:scale-95 transition-transform">
-                                                <img :src="item.icon" class="w-10 h-10 object-contain opacity-[0.65] grayscale">
+                                        </template>
+                                    </div>
+                                    <div x-show="currentPage === 1" x-transition.opacity class="grid grid-cols-4 gap-y-4 gap-x-2 w-full absolute top-2 left-0 px-4">
+                                        <template x-for="(item, index) in page2" :key="index">
+                                            <div class="flex flex-col items-center gap-1.5 cursor-pointer group" @click="handleToolClick(item)">
+                                                <div class="w-[64px] h-[64px] bg-white rounded-[22px] flex items-center justify-center shadow-sm group-active:scale-95 transition-transform">
+                                                    <img :src="item.icon" class="w-10 h-10 object-contain opacity-[0.65] grayscale">
+                                                </div>
+                                                <span class="text-[13px] text-gray-800 font-medium whitespace-nowrap" x-text="item.name"></span>
                                             </div>
-                                            <span class="text-[13px] text-gray-800 font-medium whitespace-nowrap" x-text="item.name"></span>
-                                        </div>
-                                    </template>
+                                        </template>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex items-center justify-center pb-8 pt-2 shrink-0">
-                                <div class="flex items-center gap-2">
-                                    <button @click="currentPage = 0" :class="currentPage === 0 ? 'bg-gray-500' : 'bg-gray-300'" class="w-2 h-2 rounded-full transition-colors"></button>
-                                    <button @click="currentPage = 1" :class="currentPage === 1 ? 'bg-gray-500' : 'bg-gray-300'" class="w-2 h-2 rounded-full transition-colors"></button>
+                                <div class="flex items-center justify-center pb-8 pt-2 shrink-0">
+                                    <div class="flex items-center gap-2">
+                                        <button @click="currentPage = 0" :class="currentPage === 0 ? 'bg-gray-500' : 'bg-gray-300'" class="w-2 h-2 rounded-full transition-colors"></button>
+                                        <button @click="currentPage = 1" :class="currentPage === 1 ? 'bg-gray-500' : 'bg-gray-300'" class="w-2 h-2 rounded-full transition-colors"></button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -490,7 +495,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
                     </button>
                     <div class="flex-1 dark-glass rounded-full flex items-center px-4 h-12">
-                        <input type="text" x-ref="textInput" x-model="textMessage" @keydown.enter="sendTextMessage()" placeholder="输入消息..." class="flex-1 bg-transparent text-white text-[15px] outline-none placeholder:text-gray-400">
+                        <input type="text" x-ref="textInput" x-model="textMessage" @keydown.enter="sendTextMessage()" placeholder="输入消息..." class="flex-1 bg-transparent text-white text-[16px] outline-none placeholder:text-gray-400">
                     </div>
                     <button @click="sendTextMessage()" class="shrink-0 w-12 h-12 rounded-full bg-white/90 flex items-center justify-center text-gray-900 shadow-lg" :class="!textMessage.trim() ? 'opacity-50' : ''">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
