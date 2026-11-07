@@ -17,18 +17,15 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@500;600;700;900&family=Playfair+Display:ital,wght@1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="./css/style.css?v=9">
-    <script src="./js/chat.js?v=9"></script>
-    <script src="./js/call.js?v=9"></script>
-    <script src="./js/map.js?v=9"></script>
-    <script src="./js/transfer.js?v=9"></script>
+    <link rel="stylesheet" href="./css/style.css?v=10">
+    <script src="./js/chat.js?v=10"></script>
+    <script src="./js/call.js?v=10"></script>
+    <script src="./js/map.js?v=10"></script>
+    <script src="./js/transfer.js?v=10"></script>
 </head>
 <body class="font-sans antialiased overflow-hidden">
 
-    <!-- 独立背景层：负责向下延伸盖住安全区 -->
-    <div class="bg-layer"></div>
-
-    <!-- 根容器：透明背景，只负责 UI -->
+    <!-- 根容器 -->
     <div class="pwa-root" 
          x-data="{ ...chatApp(), ...callManager(), ...mapManager(), ...transferManager() }" 
          x-init="initChat(); initCall();"
@@ -169,7 +166,8 @@
             <!-- ================= 底部输入区 ================= -->
             <div class="shrink-0 w-full z-50 bg-transparent relative">
                 
-                <div class="px-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+                <!-- 修复：因为 pwa-root 没到底，所以去掉 env() 的叠加，直接用 pb-4 -->
+                <div class="px-4 pb-4">
                     <div class="wet-glass rounded-[26px] h-[52px] p-1 px-2 flex items-center gap-1.5 w-full shadow-lg">
                         <button class="shrink-0 p-1 rounded-full hover:bg-white/20 transition-colors"><img src="https://i.ibb.co/tTcTvwCX/731-20261005164940.png" class="w-6 h-6 object-contain"></button>
                         <textarea rows="1" x-model="messageText" @keydown.enter.prevent="sendMessage()" placeholder="Send message..." class="flex-1 min-w-0 bg-transparent py-2 px-1 text-[15px] leading-snug text-gray-900 outline-none placeholder:text-gray-500 resize-none max-h-[38px] overflow-y-auto"></textarea>
