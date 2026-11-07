@@ -211,27 +211,27 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 .state-returned .amount::after { content: ''; position: absolute; top: 50%; left: -2px; right: -2px; height: 1px; background-color: rgba(255, 255, 255, 0.7); transform: translateY(-50%); }
 .state-returned .status-text { color: rgba(255, 255, 255, 0.5); }
 
-/* ================= 5. PWA 布局与纯粹壁纸 ================= */
+/* ================= 5. PWA 终极全屏与背景修复 ================= */
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden; 
-  /* 完全透明，去掉任何黑灰底色 */
-  background-color: transparent; 
+  background-color: transparent; /* 保证背景图能被玻璃效果透出来 */
 }
 
+/* 用绝对定位强行锁死全屏，底部安全区也会被画上背景 */
 .pwa-root {
-  height: 100%;
-  width: 100%;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
   display: flex;
   flex-direction: column;
   
-  /* 替换为你提供的新壁纸链接，去掉了深色兜底 */
   background-image: url('https://i.ibb.co/twzpmf44/IMG-7150.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  z-index: 10;
 }
 
 .pwa-top-safe {
@@ -245,15 +245,20 @@ html, body {
   overflow-y: auto;
 }
 
+/* 桌面端效果 */
 @media (min-width: 600px) {
   body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #e5e7eb; /* 桌面端外侧留白颜色，不影响手机 */
+    background: #e5e7eb; 
   }
   .pwa-root {
+    position: relative;
+    top: auto; bottom: auto; left: auto; right: auto;
+    width: 100%;
     max-width: 480px; 
+    height: 100vh;
     box-shadow: 0 0 40px rgba(0,0,0,0.15);
   }
 }
