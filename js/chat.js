@@ -56,6 +56,35 @@ document.addEventListener('alpine:init', () => {
             else if (touchEndX - this.touchStartX > 50 && this.currentPage === 1) { this.currentPage = 0; }
         },
 
+        // 【新增】统一处理工具栏点击逻辑，替代 HTML 里的又长又臭的 if else
+        handleToolClick(item) {
+            this.showToolsPanel = false; // 点击任何按钮后，默认先关闭面板
+            
+            switch (item.name) {
+                case '图片': 
+                    this.openFilePicker(); 
+                    break;
+                case '拍摄': 
+                    this.openCamera(); 
+                    break;
+                case '语音通话': 
+                    this.startCall('voice', 'calling'); 
+                    break;
+                case '视频通话': 
+                    this.startCall('video', 'calling'); 
+                    break;
+                case '位置': 
+                    this.showLocationModal = true; 
+                    break;
+                case '转账': 
+                    this.isTransferModalOpen = true; 
+                    break;
+                default:
+                    // 其他未开发功能可以在此处统一拦截
+                    console.log('点击了待开发功能:', item.name);
+            }
+        },
+
         openFilePicker() { 
             document.getElementById('native-file-picker').click(); 
         },
