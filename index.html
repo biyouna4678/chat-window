@@ -25,7 +25,10 @@
 </head>
 <body class="font-sans antialiased">
 
-    <!-- 根容器：fixed 铺满全屏，背景图挂载在这里 -->
+    <!-- 最底层背景层 -->
+    <div class="bg-layer"></div>
+
+    <!-- 根容器 -->
     <div class="pwa-root" 
          x-data="{ ...chatApp(), ...callManager(), ...mapManager(), ...transferManager() }" 
          x-init="initChat(); initCall();"
