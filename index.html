@@ -10,37 +10,182 @@
     <meta name="theme-color" content="#1a1a1a">
     <link rel="manifest" href="./manifest.json">
 
-    <title>液态玻璃通讯 (PWA完美全屏版)</title>
+    <title>液态玻璃通讯 (排查版)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@500;600;700;900&family=Playfair+Display:ital,wght@1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css?v=4">
     
-    <!-- 加了版本号，防止 Safari 吃缓存 -->
-    <link rel="stylesheet" href="./css/style.css?v=2">
-    
-    <script src="./js/chat.js?v=2"></script>
-    <script src="./js/call.js?v=2"></script>
-    <script src="./js/map.js?v=2"></script>
-    <script src="./js/transfer.js?v=2"></script>
+    <!-- 暂时注释掉外部的 chat.js，把 call/map/transfer 加上 crossorigin -->
+    <!-- <script src="./js/chat.js?v=4"></script> -->
+    <script src="./js/call.js?v=4" crossorigin="anonymous"></script>
+    <script src="./js/map.js?v=4" crossorigin="anonymous"></script>
+    <script src="./js/transfer.js?v=4" crossorigin="anonymous"></script>
 
-    <!-- 诊断代码 -->
+    <!-- 强化诊断代码 -->
     <script>
     window.addEventListener('error', e => {
       const d = document.createElement('div');
-      d.style.cssText = 'position:fixed;top:60px;left:0;right:0;z-index:99999;background:#000;color:#f66;font-size:11px;padding:6px;white-space:pre-wrap';
-      d.textContent = e.message + ' @ ' + (e.filename||'').split('/').pop() + ':' + e.lineno;
+      d.style.cssText = 'position:fixed;top:60px;left:0;right:0;z-index:99999;background:rgba(0,0,0,0.9);color:#f66;font-size:12px;padding:10px;white-space:pre-wrap;font-family:monospace;pointer-events:none;';
+      d.textContent = '错误: ' + e.message + '\n文件: ' + (e.filename || '内联代码').split('/').pop() + '\n行: ' + (e.lineno || 0);
       document.body.appendChild(d);
+    }, true);
+    </script>
+
+    <!-- 将 chat.js 直接内联进来测试 -->
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('chatApp', () => ({
+            isMenuOpen: false,
+            showCallSelector: false,
+            messageText: '',
+            showToolsPanel: false,
+            currentPage: 0,
+            touchStartX: 0,
+            
+            showImagePreview: false,
+            previewImageUrl: '',
+
+            messages: [
+                { id: 1, type: 'text', sender: 'me', text: '今夜 22:47，雨停在薄荷色的铁轨上。', time: '今夜 22:47' },
+                { id: 2, type: 'text', sender: 'yosali', text: '幸福 は 透明色 の まま，', time: '今夜 22:48' },
+                { id: 3, type: 'text', sender: 'me', text: '拥有的時候看不見，檢票時才聽見心跳。', time: '今夜 22:49' },
+                { id: 4, type: 'text', sender: 'yosali', text: '我把眼淚折成一枚透明車票，塞进猫邮差的铃铛包。', time: '今夜 22:50' },
+                { id: 5, type: 'text', sender: 'me', text: 'もしもし、ほしくずさん——', time: '今夜 22:51' },
+                { id: 6, type: 'text', sender: 'yosali', text: '请把这封没有地址的信，送到他梦里。', time: '今夜 22:52' }
+            ],
+
+            page1: [
+                { name: '重回', icon: 'https://i.ibb.co/ycNx3M9d/732-20261017191902.png' },
+                { name: '图片', icon: 'https://i.ibb.co/KzVkbYvK/732-20261017191809.png' },
+                { name: '拍摄', icon: 'https://i.ibb.co/GYrfdvL/732-20261017191812.png' },
+                { name: '语音通话', icon: 'https://i.ibb.co/XZzxhBjK/732-20261017191846.png' },
+                { name: '视频通话', icon: 'https://i.ibb.co/SDpwKfYx/732-20261017191841.png' },
+                { name: '位置', icon: 'https://i.ibb.co/HprpxH93/732-20261017191851.png' },
+                { name: '转账', icon: 'https://i.ibb.co/wZjfGXbP/732-20261017191925.png' },
+                { name: '线下模式', icon: 'https://i.ibb.co/0VYRSsTC/732-20261017191957.png' }
+            ],
+            page2: [
+                { name: '礼物', icon: 'https://i.ibb.co/PGmgb89t/732-20261017191936.png' },
+                { name: '好友名片', icon: 'https://i.ibb.co/9kGjp5wp/732-20261017191950.png' },
+                { name: '一起听', icon: 'https://i.ibb.co/W4Mw368g/732-20261017193040.png' },
+                { name: '日记', icon: 'https://i.ibb.co/ZZzDFjNgH/732-20261017191856.png' },
+                { name: '游戏', icon: 'https://i.ibb.co/nqjCBx4N/732-20261017191940.png' },
+                { name: '链接', icon: 'https://i.ibb.co/pjNPsrPP/732-20261017191930.png' }
+            ],
+
+            initChat() {
+                this.scrollToBottom();
+            },
+
+            hasText() { 
+                return this.messageText.trim().length > 0; 
+            },
+
+            handleTouchStart(e) { 
+                this.touchStartX = e.changedTouches[0].screenX; 
+            },
+            
+            handleTouchEnd(e) {
+                let touchEndX = e.changedTouches[0].screenX;
+                if (this.touchStartX - touchEndX > 50 && this.currentPage === 0) { this.currentPage = 1; }
+                else if (touchEndX - this.touchStartX > 50 && this.currentPage === 1) { this.currentPage = 0; }
+            },
+
+            handleToolClick(item) {
+                this.showToolsPanel = false; 
+                
+                switch (item.name) {
+                    case '图片': 
+                        this.openFilePicker(); 
+                        break;
+                    case '拍摄': 
+                        this.openCamera(); 
+                        break;
+                    case '语音通话': 
+                        this.startCall('voice', 'calling'); 
+                        break;
+                    case '视频通话': 
+                        this.startCall('video', 'calling'); 
+                        break;
+                    case '位置': 
+                        this.showLocationModal = true; 
+                        break;
+                    case '转账': 
+                        this.isTransferModalOpen = true; 
+                        break;
+                    default:
+                        console.log('点击了待开发功能:', item.name);
+                }
+            },
+
+            openFilePicker() { 
+                document.getElementById('native-file-picker').click(); 
+            },
+            
+            openCamera() { 
+                document.getElementById('native-camera-picker').click(); 
+            },
+
+            scrollToBottom() {
+                this.$nextTick(() => {
+                    const c = document.getElementById('chat-scroll');
+                    if(c) c.scrollTop = c.scrollHeight;
+                });
+            },
+
+            sendMessage() {
+                if (!this.messageText.trim()) return;
+                const now = new Date();
+                const timeStr = `今天 ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                
+                this.messages.push({
+                    id: Date.now(),
+                    type: 'text',
+                    sender: 'me',
+                    text: this.messageText.trim(),
+                    time: timeStr
+                });
+                
+                this.messageText = '';
+                this.scrollToBottom();
+            },
+
+            handleImageUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const now = new Date();
+                    const timeStr = `今天 ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                    this.messages.push({
+                        id: Date.now(),
+                        type: 'image',
+                        sender: 'me',
+                        url: e.target.result,
+                        time: timeStr
+                    });
+                    this.scrollToBottom();
+                };
+                reader.readAsDataURL(file);
+                event.target.value = ''; 
+            },
+
+            saveImage(url) {
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'chat-image-' + Date.now() + '.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        }));
     });
-    setTimeout(() => {
-      if (typeof window.Alpine === 'undefined') {
-        alert('Alpine: undefined (CDN 加载失败)');
-      }
-    }, 2500);
     </script>
 </head>
-<body class="font-sans antialiased overflow-hidden">
+<body class="font-sans antialiased overflow-hidden bg-[#1a1a1a]">
 
     <div class="pwa-root" 
          x-data="{ ...chatApp(), ...callManager(), ...mapManager(), ...transferManager() }" 
@@ -217,7 +362,6 @@
                     </div>
                 </div>
 
-                <!-- 修复点：这里直接硬编码了 max-h-0，如果 Alpine 挂了，默认收起 -->
                 <div id="tools-panel" class="w-full overflow-hidden transition-[max-height] duration-300 ease-out transform-gpu will-change-[max-height] max-h-0" 
                      :class="showToolsPanel ? 'max-h-[330px]' : 'max-h-0'">
                     <div>
@@ -226,16 +370,7 @@
                             <div class="flex-1 relative px-4 pt-2">
                                 <div x-show="currentPage === 0" x-transition.opacity class="grid grid-cols-4 gap-y-4 gap-x-2 w-full">
                                     <template x-for="(item, index) in page1" :key="index">
-                                        <div class="flex flex-col items-center gap-1.5 cursor-pointer group" 
-                                             @click="
-                                                if (item.name === '图片') { openFilePicker(); showToolsPanel = false; }
-                                                else if (item.name === '拍摄') { openCamera(); showToolsPanel = false; }
-                                                else if (item.name === '语音通话') { startCall('voice', 'calling'); showToolsPanel = false; }
-                                                else if (item.name === '视频通话') { startCall('video', 'calling'); showToolsPanel = false; }
-                                                else if (item.name === '位置') { showLocationModal = true; showToolsPanel = false; }
-                                                else if (item.name === '转账') { isTransferModalOpen = true; showToolsPanel = false; }
-                                                else { showToolsPanel = false; }
-                                             ">
+                                        <div class="flex flex-col items-center gap-1.5 cursor-pointer group" @click="handleToolClick(item)">
                                             <div class="w-[64px] h-[64px] bg-white rounded-[22px] flex items-center justify-center shadow-sm group-active:scale-95 transition-transform">
                                                 <img :src="item.icon" class="w-10 h-10 object-contain opacity-[0.65] grayscale">
                                             </div>
@@ -245,7 +380,7 @@
                                 </div>
                                 <div x-show="currentPage === 1" x-transition.opacity class="grid grid-cols-4 gap-y-4 gap-x-2 w-full absolute top-2 left-0 px-4">
                                     <template x-for="(item, index) in page2" :key="index">
-                                        <div class="flex flex-col items-center gap-1.5 cursor-pointer group" @click="showToolsPanel = false">
+                                        <div class="flex flex-col items-center gap-1.5 cursor-pointer group" @click="handleToolClick(item)">
                                             <div class="w-[64px] h-[64px] bg-white rounded-[22px] flex items-center justify-center shadow-sm group-active:scale-95 transition-transform">
                                                 <img :src="item.icon" class="w-10 h-10 object-contain opacity-[0.65] grayscale">
                                             </div>
@@ -743,7 +878,6 @@
 
     </div>
 
-    <!-- 注册 Service Worker 以激活 PWA -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
