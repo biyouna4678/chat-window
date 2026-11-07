@@ -211,27 +211,38 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 .state-returned .amount::after { content: ''; position: absolute; top: 50%; left: -2px; right: -2px; height: 1px; background-color: rgba(255, 255, 255, 0.7); transform: translateY(-50%); }
 .state-returned .status-text { color: rgba(255, 255, 255, 0.5); }
 
-/* ================= 5. PWA 终极全屏与背景修复 ================= */
+/* ================= 5. 终极背景铺满与玻璃透传 ================= */
 html, body {
+  background-color: transparent; 
+  position: fixed;
+  overflow: hidden;
+  width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; 
-  background-color: transparent; /* 保证背景图能被玻璃效果透出来 */
 }
 
-/* 用绝对定位强行锁死全屏，底部安全区也会被画上背景 */
-.pwa-root {
+/* 完美的底层垫图 */
+.bg-layer {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  display: flex;
-  flex-direction: column;
-  
+  inset: 0;           
+  width: 100vw;
+  height: 100svh;     /* 包含底部安全区的物理高度 */
+  z-index: -9999;     
   background-image: url('https://i.ibb.co/twzpmf44/IMG-7150.jpg');
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
-  z-index: 10;
+  pointer-events: none; 
+}
+
+/* 根容器透明，让底图透出来被玻璃模糊 */
+.pwa-root {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 1;
+  background: transparent; 
+  display: flex;
+  flex-direction: column;
 }
 
 .pwa-top-safe {
@@ -260,5 +271,13 @@ html, body {
     max-width: 480px; 
     height: 100vh;
     box-shadow: 0 0 40px rgba(0,0,0,0.15);
+  }
+  .bg-layer {
+    position: absolute;
+    top: 0; bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    height: 100vh;
   }
 }
