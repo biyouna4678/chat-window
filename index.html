@@ -2,11 +2,9 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 核心：viewport-fit=cover 铺满刘海屏，user-scalable=no 防止双击放大撑破布局 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
     
-    <!-- PWA 独立应用配置 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a1a">
@@ -14,34 +12,32 @@
 
     <title>液态玻璃通讯</title>
     
-    <!-- Tailwind & Alpine -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
-    <!-- 字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@500;600;700;900&family=Playfair+Display:ital,wght@1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- 引入样式与模块化 JS，加上 ?v=8 防止 Safari 强制缓存旧版本 -->
-    <link rel="stylesheet" href="./css/style.css?v=8">
-    <script src="./js/chat.js?v=8"></script>
-    <script src="./js/call.js?v=8"></script>
-    <script src="./js/map.js?v=8"></script>
-    <script src="./js/transfer.js?v=8"></script>
+    <link rel="stylesheet" href="./css/style.css?v=9">
+    <script src="./js/chat.js?v=9"></script>
+    <script src="./js/call.js?v=9"></script>
+    <script src="./js/map.js?v=9"></script>
+    <script src="./js/transfer.js?v=9"></script>
 </head>
-<body class="font-sans antialiased overflow-hidden bg-[#1a1a1a]">
+<body class="font-sans antialiased overflow-hidden">
 
-    <!-- 根容器：自带背景图（由 CSS 的 .pwa-root 控制），铺满全屏 -->
+    <!-- 独立背景层：负责向下延伸盖住安全区 -->
+    <div class="bg-layer"></div>
+
+    <!-- 根容器：透明背景，只负责 UI -->
     <div class="pwa-root" 
          x-data="{ ...chatApp(), ...callManager(), ...mapManager(), ...transferManager() }" 
          x-init="initChat(); initCall();"
          @beforeunload.window="stopTimer(); stopCamera(); if(recognition) recognition.stop();">
 
-        <!-- 隐藏文件输入 -->
         <input type="file" id="native-file-picker" accept="image/*" class="hidden" @change="handleImageUpload($event)">
         <input type="file" id="native-camera-picker" accept="image/*" capture="environment" class="hidden" @change="handleImageUpload($event)">
 
         <!-- ================= 1. 聊天主界面 ================= -->
-        <!-- 修复：用 absolute inset-0 锁死高度，防止 Safari 布局塌陷 -->
         <div class="absolute inset-0 w-full h-full flex flex-col transition-all duration-300"
              :class="callState !== 'idle' && !isMinimized ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'">
             
@@ -208,7 +204,6 @@
                     </div>
                 </div>
 
-                <!-- 静态硬编码 max-h-0，防止 Alpine 挂掉时撑爆屏幕 -->
                 <div class="w-full overflow-hidden transition-[max-height] duration-300 ease-out transform-gpu will-change-[max-height] max-h-0" 
                      :class="showToolsPanel ? 'max-h-[330px]' : 'max-h-0'">
                     <div>
@@ -725,7 +720,6 @@
 
     </div>
 
-    <!-- 注册 Service Worker -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
