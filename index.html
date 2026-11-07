@@ -2,16 +2,15 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
     
-    <!-- PWA 全屏配置，统一使用 #1a1a1a 防白闪 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a1a">
     <link rel="manifest" href="./manifest.json">
 
-    <title>液态玻璃通讯</title>
+    <title>液态玻璃通讯 (PWA完美全屏版)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -26,10 +25,7 @@
 </head>
 <body class="font-sans antialiased overflow-hidden">
 
-    <!-- ════════════════════════════════════════════════════════ -->
-    <!-- 🟢 [1] 根组件 & 全局配置 (Root Component)                  -->
-    <!-- ════════════════════════════════════════════════════════ -->
-    <div class="pwa-root flex flex-col relative" 
+    <div class="pwa-root" 
          x-data="{ ...chatApp(), ...callManager(), ...mapManager(), ...transferManager() }" 
          x-init="initChat(); initCall();"
          @beforeunload.window="stopTimer(); stopCamera(); if(recognition) recognition.stop();">
@@ -37,15 +33,11 @@
         <input type="file" id="native-file-picker" accept="image/*" class="hidden" @change="handleImageUpload($event)">
         <input type="file" id="native-camera-picker" accept="image/*" capture="environment" class="hidden" @change="handleImageUpload($event)">
 
-
-        <!-- ════════════════════════════════════════════════════════ -->
-        <!-- 🟢 [2] 聊天主界面 (Main Chat UI)                           -->
-        <!-- 包含：顶部 Header、消息列表、底部输入框、工具栏                  -->
-        <!-- ════════════════════════════════════════════════════════ -->
-        <div class="w-full h-full flex flex-col transition-all duration-300"
+        <!-- ================= 1. 聊天主界面 ================= -->
+        <div class="absolute inset-0 w-full h-full flex flex-col transition-all duration-300"
              :class="callState !== 'idle' && !isMinimized ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'">
             
-            <!-- [2.1] 顶部 Header -->
+            <!-- 顶部固定栏 -->
             <div class="flex items-center justify-between w-full gap-2 shrink-0 mb-4 px-3 relative z-40 pwa-top-safe">
                 <div class="wet-glass rounded-full h-[56px] px-3 flex items-center w-fit max-w-[75%] transition-all duration-300">
                     <button class="p-1 ml-0 text-black hover:text-black transition-colors rounded-full hover:bg-white/20 shrink-0" @click="alert('执行返回操作')">
@@ -88,8 +80,8 @@
                 </div>
             </div>
 
-            <!-- [2.2] 消息列表 -->
-            <div class="flex-1 overflow-y-auto pb-6 flex flex-col gap-5 px-4 relative z-10 hide-scrollbar" id="chat-scroll">
+            <!-- 消息流：核心修复：加上 min-h-0 防止被挤压成 0 -->
+            <div class="flex-1 min-h-0 overflow-y-auto pb-6 flex flex-col gap-5 px-4 relative z-10 hide-scrollbar" id="chat-scroll">
                 <template x-for="(msg, index) in messages" :key="msg.id">
                     <div class="flex w-full animate-fade-in-up" :class="msg.sender === 'me' ? 'justify-end' : 'justify-start'">
                         <div class="flex flex-col w-fit max-w-[80%]" :class="msg.sender === 'me' ? 'items-end' : 'items-start'">
@@ -109,7 +101,6 @@
                                 <div class="border-t border-dashed border-gray-400/60 w-full mb-2.5"></div>
                             </div>
 
-                            <!-- 文字 -->
                             <template x-if="msg.type === 'text'">
                                 <div class="wet-glass px-4 py-2.5 text-gray-900 text-[15px] leading-snug text-left w-fit break-words pointer-events-auto" 
                                      :class="msg.sender === 'me' ? 'rounded-[22px] rounded-br-[6px]' : 'rounded-[22px] rounded-bl-[6px]'">
@@ -117,7 +108,6 @@
                                 </div>
                             </template>
 
-                            <!-- 图片 -->
                             <template x-if="msg.type === 'image'">
                                 <div class="relative pointer-events-auto overflow-hidden shadow-sm border border-white/50 bg-black/10 cursor-pointer active:scale-95 transition-transform"
                                      :class="msg.sender === 'me' ? 'rounded-[22px] rounded-br-[6px]' : 'rounded-[22px] rounded-bl-[6px]'"
@@ -126,7 +116,6 @@
                                 </div>
                             </template>
 
-                            <!-- 位置 -->
                             <template x-if="msg.type === 'location'">
                                 <div class="chat-location-card cursor-pointer active:scale-95 transition-transform" @click="selectedLocation = msg.data; showLocationDetail = true;">
                                     <div class="card-header wet-glass">
@@ -149,7 +138,6 @@
                                 </div>
                             </template>
 
-                            <!-- 信笺转账 -->
                             <template x-if="msg.type === 'transfer'">
                                 <div class="wet-glass letter-card" 
                                      :class="{
@@ -168,13 +156,14 @@
                                     <div class="message" x-text="msg.data.message || '无留言'"></div>
                                 </div>
                             </template>
+
                         </div>
                     </div>
                 </template>
             </div>
 
-            <!-- [2.3] 底部输入框 & 工具栏 -->
-            <div class="shrink-0 w-full z-50 mt-auto bg-transparent relative">
+            <!-- ================= 底部输入区 ================= -->
+            <div class="shrink-0 w-full z-50 bg-transparent relative">
                 
                 <div class="px-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
                     <div class="wet-glass rounded-[26px] h-[52px] p-1 px-2 flex items-center gap-1.5 w-full shadow-lg">
@@ -183,17 +172,21 @@
                         
                         <template x-if="!hasText()">
                             <div class="flex items-center gap-1 shrink-0">
-                                <!-- 左侧星星 -->
-                                <button class="p-1 rounded-full hover:bg-white/20 active:bg-white/40 transition-colors">
+                                <button type="button" 
+                                        @mousedown.prevent 
+                                        @touchstart.prevent
+                                        @click="showToolsPanel = !showToolsPanel" 
+                                        class="p-1 rounded-full hover:bg-white/20">
                                     <img src="https://i.ibb.co/LdWwXVF4/731-20261005164859.png" class="w-6 h-6 object-contain">
                                 </button>
                                 
-                                <!-- 右侧回形针：已修复为 @click -->
                                 <button type="button" 
+                                        @mousedown.prevent 
+                                        @touchstart.prevent
                                         @click="showToolsPanel = !showToolsPanel;" 
                                         :class="{'bg-white/30': showToolsPanel}" 
-                                        class="p-1 rounded-full hover:bg-white/20 active:bg-white/40 transition-colors flex items-center justify-center shrink-0 w-8 h-8">
-                                    <img src="https://i.ibb.co/WNDxx6q1/739-20261031094001.png" class="w-6 h-6 object-contain">
+                                        class="p-1 rounded-full hover:bg-white/20 flex items-center justify-center shrink-0 w-8 h-8">
+                                    <img src="https://i.ibb.co/WNDxx6q1/739-20261031094001.png" class="w-7 h-7 object-contain scale-125">
                                 </button>
                             </div>
                         </template>
@@ -207,20 +200,25 @@
                     </div>
                 </div>
 
-                <!-- 工具栏面板：使用 GPU 加速的 max-height 动画 -->
+                <!-- 核心修复：工具栏最大高度限制，防止在 Safari 下撑爆 -->
                 <div class="w-full overflow-hidden transition-[max-height] duration-300 ease-out transform-gpu will-change-[max-height]" 
                      :class="showToolsPanel ? 'max-h-[330px]' : 'max-h-0'">
                     <div>
                         <div class="bg-[#f3f4f6] w-full rounded-t-[28px] shadow-[0_-10px_30px_rgba(0,0,0,0.05)] border-t border-white/60 flex flex-col h-[330px]" @touchstart="handleTouchStart($event)" @touchend="handleTouchEnd($event)">
                             <div class="w-10 h-1.5 bg-gray-300 rounded-full mx-auto mt-4 mb-2 shrink-0"></div>
                             <div class="flex-1 relative px-4 pt-2">
-                                
-                                <!-- 第一页 -->
                                 <div x-show="currentPage === 0" x-transition.opacity class="grid grid-cols-4 gap-y-4 gap-x-2 w-full">
                                     <template x-for="(item, index) in page1" :key="index">
-                                        <!-- 逻辑已抽离到 JS 的 handleToolClick -->
                                         <div class="flex flex-col items-center gap-1.5 cursor-pointer group" 
-                                             @click="handleToolClick(item)">
+                                             @click="
+                                                if (item.name === '图片') { openFilePicker(); showToolsPanel = false; }
+                                                else if (item.name === '拍摄') { openCamera(); showToolsPanel = false; }
+                                                else if (item.name === '语音通话') { startCall('voice', 'calling'); showToolsPanel = false; }
+                                                else if (item.name === '视频通话') { startCall('video', 'calling'); showToolsPanel = false; }
+                                                else if (item.name === '位置') { showLocationModal = true; showToolsPanel = false; }
+                                                else if (item.name === '转账') { isTransferModalOpen = true; showToolsPanel = false; }
+                                                else { showToolsPanel = false; }
+                                             ">
                                             <div class="w-[64px] h-[64px] bg-white rounded-[22px] flex items-center justify-center shadow-sm group-active:scale-95 transition-transform">
                                                 <img :src="item.icon" class="w-10 h-10 object-contain opacity-[0.65] grayscale">
                                             </div>
@@ -228,11 +226,9 @@
                                         </div>
                                     </template>
                                 </div>
-
-                                <!-- 第二页 -->
                                 <div x-show="currentPage === 1" x-transition.opacity class="grid grid-cols-4 gap-y-4 gap-x-2 w-full absolute top-2 left-0 px-4">
                                     <template x-for="(item, index) in page2" :key="index">
-                                        <div class="flex flex-col items-center gap-1.5 cursor-pointer group" @click="handleToolClick(item)">
+                                        <div class="flex flex-col items-center gap-1.5 cursor-pointer group" @click="showToolsPanel = false">
                                             <div class="w-[64px] h-[64px] bg-white rounded-[22px] flex items-center justify-center shadow-sm group-active:scale-95 transition-transform">
                                                 <img :src="item.icon" class="w-10 h-10 object-contain opacity-[0.65] grayscale">
                                             </div>
@@ -253,11 +249,7 @@
             </div>
         </div>
 
-
-        <!-- ════════════════════════════════════════════════════════ -->
-        <!-- 🟢 [3] 全局辅助弹窗 (Global Modals)                      -->
-        <!-- 包含：图片预览                                           -->
-        <!-- ════════════════════════════════════════════════════════ -->
+        <!-- ================= 图片预览 ================= -->
         <div x-show="showImagePreview" x-transition.opacity class="fixed inset-0 z-[500] bg-black/80 backdrop-blur-xl flex flex-col items-center justify-center" style="display: none;" @click.self="showImagePreview = false">
             <img :src="previewImageUrl" class="max-w-[90vw] max-h-[75vh] object-contain rounded-xl shadow-2xl mb-12">
             <div class="flex items-center gap-10">
@@ -270,11 +262,7 @@
             </div>
         </div>
 
-
-        <!-- ════════════════════════════════════════════════════════ -->
-        <!-- 🟢 [4] 位置与全息地图 (Map & Hologram)                   -->
-        <!-- 包含：发送位置表单、全息详情全屏                             -->
-        <!-- ════════════════════════════════════════════════════════ -->
+        <!-- ================= 发送位置弹窗 ================= -->
         <div x-show="showLocationModal" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-full" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-full" class="fixed inset-0 z-[250] flex flex-col justify-end bg-black/40" style="display: none;" @click.self="showLocationModal = false">
             <div class="action-sheet">
                 <div class="preview-map">
@@ -304,6 +292,7 @@
             </div>
         </div>
 
+        <!-- ================= 全息详情页 ================= -->
         <div x-show="showLocationDetail" x-transition.opacity class="fixed inset-0 z-[300] bg-[#2b2b2b] overflow-hidden" style="display: none;">
             <div class="hologram-exit-btn" @click="showLocationDetail = false"><div class="exit-icon"></div></div>
             <div class="grid-bg">
@@ -323,13 +312,7 @@
             </div>
         </div>
 
-
-        <!-- ════════════════════════════════════════════════════════ -->
-        <!-- 🟢 [5] 通话与画中画 (Call & PiP)                         -->
-        <!-- 包含：语音全屏、视频全屏、PiP悬浮小窗                       -->
-        <!-- ════════════════════════════════════════════════════════ -->
-        
-        <!-- 5.1 语音通话 -->
+        <!-- ================= 语音通话 ================= -->
         <div x-show="callType === 'voice' && callState !== 'idle' && !isMinimized" x-transition.opacity class="fixed inset-0 z-[100] flex flex-col justify-between pt-14 pb-10 px-6 bg-gray-900 overflow-hidden" style="display: none;">
             <div class="absolute inset-0 z-0 bg-black"></div>
             <div class="flex justify-between items-center w-full shrink-0 relative z-30">
@@ -348,7 +331,7 @@
                     </button>
                     <div x-show="showCallSettings" @click="showCallSettings = false" class="fixed inset-0 z-[90] bg-transparent"></div>
                     <div x-show="showCallSettings" class="absolute right-0 top-14 w-[200px] ios-menu rounded-2xl overflow-hidden text-[15px] text-white z-[100] pointer-events-auto" style="display: none;">
-                        <button type="button" @click.stop="startMode ==" 'them'" class="w-full text-left flex0 justify-between items-center px-4 py-3 border-b border-white/10 active:bg-white/20"><span>对方先说</span><svg x-show="startMode === 'them'" class="w-5 h-5 text-white" viewBox 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></button>
+                        <button type="button" @click.stop="startMode = 'them'" class="w-full text-left flex justify-between items-center px-4 py-3 border-b border-white/10 active:bg-white/20"><span>对方先说</span><svg x-show="startMode === 'them'" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></button>
                         <button type="button" @click.stop="startMode = 'me'" class="w-full text-left flex justify-between items-center px-4 py-3 border-b border-white/10 active:bg-white/20"><span>我先说</span><svg x-show="startMode === 'me'" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg></button>
                         <button type="button" @click.stop="subtitlesOn = !subtitlesOn" class="w-full text-left flex justify-between items-center px-4 py-3 active:bg-white/20"><span>字幕显示</span><span class="text-gray-400 text-sm" x-text="subtitlesOn ? '已开启' : '已关闭'"></span></button>
                     </div>
@@ -407,7 +390,7 @@
             </div>
         </div>
 
-        <!-- 5.2 视频通话 -->
+        <!-- ================= 视频通话 ================= -->
         <div x-show="callType === 'video' && callState !== 'idle' && !isMinimized" x-transition.opacity class="fixed inset-0 z-[100] flex flex-col justify-between pt-12 pb-8 px-4 bg-[#121212] overflow-hidden" style="display: none;">
             <div class="absolute inset-0 z-0 bg-cover bg-center transition-opacity duration-500" :class="callState === 'active' ? 'opacity-100' : 'opacity-0'" style="background-image: url('https://i.ibb.co/1G5BT8Kg/IMG-9202.jpg');"></div>
             <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none z-0" :class="callState === 'active' ? 'opacity-100' : 'opacity-0'"></div>
@@ -538,7 +521,7 @@
             </div>
         </div>
 
-        <!-- 5.3 PiP 悬浮小窗 -->
+        <!-- ================= 最小化悬浮小窗 ================= -->
         <div x-show="callState !== 'idle' && isMinimized" x-transition.opacity class="wet-glass fixed z-[200] w-[90px] h-[120px] rounded-[22px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col items-center justify-end pb-3 cursor-pointer overflow-hidden border-white/60 pip-drag" style="display: none;" :style="`left: ${pipX}px; top: ${pipY}px;`" @mousedown="handleDragStart($event)" @touchstart="handleDragStart($event)">
              <div class="absolute top-2.5 left-2.5 w-2.5 h-2.5 rounded-full bg-green-500 border border-white/50 animate-pulse shadow-sm z-20" x-show="callState === 'active'"></div>
              <div class="absolute top-2.5 left-2.5 w-2.5 h-2.5 rounded-full bg-blue-500 border border-white/50 animate-bounce shadow-sm z-20" x-show="callState === 'calling'"></div>
@@ -556,13 +539,8 @@
              <span class="text-gray-800 font-bold text-[11px] font-mono" x-text="callState === 'active' ? callTimer : (callState === 'calling' ? '等待接听' : '来电...')"></span>
         </div>
 
-
-        <!-- ════════════════════════════════════════════════════════ -->
-        <!-- 🟢 [6] 转账与支付系统 (Transfer & Payment)                 -->
-        <!-- 包含：表单、选卡、密码键盘、成功弹窗                           -->
-        <!-- ════════════════════════════════════════════════════════ -->
-        
-        <!-- 6.1 转账表单 -->
+        <!-- ======================== 转账弹窗群 ======================== -->
+        <!-- 1. 转账表单弹窗 -->
         <div x-show="isTransferModalOpen" x-cloak
              class="fixed inset-0 z-[600] flex items-center justify-center px-4 bg-black/40 backdrop-blur-sm transition-opacity"
              @click.self="isTransferModalOpen = false">
@@ -609,7 +587,7 @@
             </div>
         </div>
 
-        <!-- 6.2 银行卡选择 -->
+        <!-- 2. 银行卡选择半屏弹窗 -->
         <div x-show="isBankCardModalOpen" x-cloak
              class="fixed inset-0 z-[610] flex items-end justify-center"
              @click.self="isBankCardModalOpen = false">
@@ -679,7 +657,7 @@
             </div>
         </div>
 
-        <!-- 6.3 支付密码 -->
+        <!-- 3. 请输入支付密码弹窗 -->
         <div x-show="isPasswordModalOpen" x-cloak
              class="fixed inset-0 z-[620] flex flex-col justify-end bg-black/60 backdrop-blur-sm"
              x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -720,7 +698,7 @@
             </div>
         </div>
 
-        <!-- 6.4 转账成功 -->
+        <!-- 4. 极简转账成功弹窗 -->
         <div x-show="isSuccessModalOpen" x-cloak
              class="fixed inset-0 z-[630] flex items-center justify-center px-4 bg-black/40 backdrop-blur-sm"
              @click.self="isSuccessModalOpen = false; setTimeout(() => amount = '', 300);">
@@ -748,9 +726,7 @@
 
     </div>
 
-    <!-- ════════════════════════════════════════════════════════ -->
-    <!-- 🟢 [7] PWA Service Worker 注册                            -->
-    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- 注册 Service Worker 以激活 PWA -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
