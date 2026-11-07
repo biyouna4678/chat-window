@@ -132,11 +132,11 @@ document.addEventListener('alpine:init', () => {
 
         bindVideoStream() {
             this.$nextTick(() => {
-                if (this.$refs if.videoElement) this.$refs.videoElement.srcObject(this = null;
-               .is if (this.$refs.pipVideoElement) this.$refs.pipVideoElement.srcObject = null;
+                if (this.$refs.videoElement) this.$refs.videoElement.srcObject = null;
+                if (this.$refs.pipVideoElement) this.$refs.pipVideoElement.srcObject = null;
 
-               Listening if (!this.isMinimized && this.$ref)s.videoElement) {
-                    this.$ref {s.videoElement.srcObject = this.mediaStream;
+                if (!this.isMinimized && this.$refs.videoElement) {
+                    this.$refs.videoElement.srcObject = this.mediaStream;
                 } else if (this.isMinimized && this.$refs.pipVideoElement) {
                     this.$refs.pipVideoElement.srcObject = this.mediaStream;
                 }
@@ -170,22 +170,28 @@ document.addEventListener('alpine:init', () => {
         /* ================= 视频字幕/文字交互 ================= */
         sendTextMessage() {
             if (!this.textMessage.trim()) return;
-            this.videoSubtitles.push({ type: 'dialogue', speaker: 'Me', original: this this.textMessage.trim(), translation: '' });
+            this.videoSubtitles.push({ type: 'dialogue', speaker: 'Me', original: this.textMessage.trim(), translation: '' });
             this.textMessage = '';
             this.isTyping = false;
             this.scrollVideoToBottom();
         },
+        
         toggleTyping() {
             this.isTyping = !this.isTyping;
             if (this.isTyping) {
                 if (this.micOn) {
                     this.micOn = false;
-                   .isListening = false; this.recognition.stop(); }
+                    if (this.isListening) { 
+                        this.isListening = false; 
+                        if (this.recognition) this.recognition.stop(); 
+                    }
                 }
-                this.$nextTick(() => { this.$refs.textInput.focus(); });
+                // 修复 2：加上可选链 ?，防止在 DOM 还没完全渲染时尝试 focus 报错
+                this.$nextTick(() => { this.$refs.textInput?.focus(); });
             }
             this.scrollVideoToBottom();
         },
+        
         scrollVideoToBottom() {
             this.$nextTick(() => {
                 const container = this.$refs.videoSubtitleBox;
@@ -196,7 +202,12 @@ document.addEventListener('alpine:init', () => {
         /* ================= 语音识别逻辑 ================= */
         initSpeechRecognition() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) return;
+            
+            // 修复 4：识别引擎不可用时的兜底提示 (iOS PWA 环境下常常不可用)
+            if (!SpeechRecognition) {
+                console.warn('当前浏览器/PWA环境不支持语音识别 API (webkitSpeechRecognition)，麦克风字幕功能不可用。');
+                return;
+            }
             
             if (this.recognition) {
                 if (this.micOn && !this.isListening) {
@@ -209,7 +220,9 @@ document.addEventListener('alpine:init', () => {
             this.recognition = new SpeechRecognition();
             this.recognition.continuous = true; 
             this.recognition.interimResults = true; 
-            this.recognition.lang = 'zh-CN'; 
+            
+            // 修复 4：支持多语言，优先识别日文，其次中文和英文
+            this.recognition.lang = ['ja-JP', 'zh-CN', 'en-US']; 
 
             this.recognition.onresult = (event) => {
                 let interim = ''; let final = '';
@@ -283,6 +296,9 @@ document.addEventListener('alpine:init', () => {
             window.addEventListener('mouseup', onMouseUp);
             window.addEventListener('touchmove', onMouseMove, { passive: false });
             window.addEventListener('touchend', onMouseUp);
+            
+            // 修复 3：增加 touchcancel 监听，防止系统打断触摸（如下拉通知栏）时状态卡死
+            window.addEventListener('touchcancel', onMouseUp);
         },
         
         handleDragMove(e) {
@@ -313,6 +329,8 @@ document.addEventListener('alpine:init', () => {
             window.removeEventListener('mouseup', upFn);
             window.removeEventListener('touchmove', moveFn);
             window.removeEventListener('touchend', upFn);
+            // 修复 3：配套移除 touchcancel
+            window.removeEventListener('touchcancel', upFn);
             
             if (e && e.cancelable) e.preventDefault();
             
