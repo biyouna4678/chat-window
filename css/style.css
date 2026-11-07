@@ -3,28 +3,44 @@
 textarea::-webkit-scrollbar, .hide-scrollbar::-webkit-scrollbar, .no-scrollbar::-webkit-scrollbar { display: none; }
 textarea, .hide-scrollbar, .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* 核心修复：把背景图直接钉死在 body 的固定视口上 */
-html, body {
+/* ================= 终极视口与背景锁死 ================= */
+html {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    background-image: url('https://i.ibb.co/VWmvYVTV/IMG-7150.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed; /* 这行是关键，保证它死死贴在屏幕最底层 */
-    background-color: #1a1a1a;
     overflow: hidden;
+    background-color: #1a1a1a; /* 极简防白闪兜底 */
 }
 
 body {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+
+    /* 核心修复 1：不使用 background-attachment: fixed */
+    background-image: url('https://i.ibb.co/VWmvYVTV/IMG-7150.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
     -webkit-touch-callout: none;
     touch-action: manipulation;
+
+    /* 开启硬件加速，贴合底层 */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
 }
 textarea, input { -webkit-user-select: text; user-select: text; }
 
@@ -226,26 +242,32 @@ textarea, input { -webkit-user-select: text; user-select: text; }
 .state-returned .amount::after { content: ''; position: absolute; top: 50%; left: -2px; right: -2px; height: 1px; background-color: rgba(255, 255, 255, 0.7); transform: translateY(-50%); }
 .state-returned .status-text { color: rgba(255, 255, 255, 0.5); }
 
-/* ================= 5. PWA 全屏无白边终极代码 ================= */
+/* ================= 5. 终极 PWA 视口与安全区辅助类 ================= */
 .pwa-root {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  /* 卡在安全区上方，下方露出的部分直接由 body 铺满背景 */
-  bottom: env(safe-area-inset-bottom, 0px); 
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  background-color: transparent;
+  background-color: transparent !important;
 }
 
+/* 顶部固定栏避让 */
 .pwa-top-safe {
-  padding-top: max(16px, env(safe-area-inset-top));
+  padding-top: max(12px, env(safe-area-inset-top, 12px));
 }
 
-#chat-scroll {
-  -webkit-overflow-scrolling: touch;
-  will-change: transform;
+/* 底部输入框外层避让，下方完全透明透出 body 的壁纸 */
+.pwa-bottom-safe {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
 }
 
-/* 桌面端效果：居中限制宽度 */
+/* 展开工具面板时的底部避让 */
+.pwa-panel-bottom-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* 桌面端效果：居中限制宽度，避免宽屏拉伸 */
 @media (hover: hover) and (min-width: 600px) {
   body {
     display: flex;
@@ -253,7 +275,7 @@ textarea, input { -webkit-user-select: text; user-select: text; }
     background: #e5e7eb;
   }
   .pwa-root {
-    position: fixed;
+    position: absolute;
     top: 0; bottom: 0;
     left: 50%;
     transform: translateX(-50%);
