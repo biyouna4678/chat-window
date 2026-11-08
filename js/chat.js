@@ -39,6 +39,16 @@ document.addEventListener('alpine:init', () => {
         ],
 
         initChat() {
+            // ========================================================
+            // 【预留接口】在这里可以读取线下模式（offline.html）保存的设置
+            // ========================================================
+            // const savedStyle = localStorage.getItem('pwa_chat_style');
+            // if (savedStyle) { console.log('当前启用的文风：', savedStyle); }
+            // 
+            // const savedMinWords = localStorage.getItem('pwa_min_words');
+            // if (savedMinWords) { console.log('字数下限：', savedMinWords); }
+            // ========================================================
+
             this.scrollToBottom();
         },
 
@@ -80,10 +90,11 @@ document.addEventListener('alpine:init', () => {
                     this.isTransferModalOpen = true; 
                     break;
                 case '线下模式': 
-                    this.openApp(); // 唤起 offlineManager 中的方法
+                    // 👇 核心修改：跳转到拆分好的独立页面
+                    window.location.href = './offline.html'; 
                     break;
                 default:
-                    // 其他未开发功能可以在此处统一拦截
+                    // 其他未开发功能
                     console.log('点击了待开发功能:', item.name);
             }
         },
