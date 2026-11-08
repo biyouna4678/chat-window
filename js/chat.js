@@ -56,7 +56,7 @@ document.addEventListener('alpine:init', () => {
             else if (touchEndX - this.touchStartX > 50 && this.currentPage === 1) { this.currentPage = 0; }
         },
 
-        // 【新增】统一处理工具栏点击逻辑，替代 HTML 里的又长又臭的 if else
+        // 统一处理工具栏点击逻辑
         handleToolClick(item) {
             this.showToolsPanel = false; // 点击任何按钮后，默认先关闭面板
             
@@ -78,6 +78,9 @@ document.addEventListener('alpine:init', () => {
                     break;
                 case '转账': 
                     this.isTransferModalOpen = true; 
+                    break;
+                case '线下模式': 
+                    this.openApp(); // 唤起 offlineManager 中的方法
                     break;
                 default:
                     // 其他未开发功能可以在此处统一拦截
