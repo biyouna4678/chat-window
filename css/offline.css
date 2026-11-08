@@ -11,14 +11,14 @@
 
 img, svg { -webkit-user-drag: none; }
 
-/* 解决 iOS 输入框聚焦放大问题，同时允许文本输入 */
+/* 解决 iOS 输入框聚焦放大问题 */
 textarea, input { 
     user-select: auto !important; 
     -webkit-user-select: auto !important; 
-    font-size: 16px !important; /* iOS 必须 >= 16px 才不会自动放大 */
+    font-size: 16px !important; 
 }
 
-/* 彻底禁止文本选中（含篇章长文本） */
+/* 彻底禁止文本选中 */
 body *:not(input):not(textarea) {
     -webkit-user-select: none !important;
     user-select: none !important;
@@ -37,18 +37,28 @@ body *:not(input):not(textarea) {
 /* 避免 Alpine 未初始化闪烁 */
 [x-cloak] { display: none !important; }
 
-html, body {
+/* ================= 核心修复点 ================= */
+/* 将底色放在 html，防止盖住 z-index: -1 的壁纸层 */
+html {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+    background-color: #f2f2f7; 
+}
+
+/* body 必须保持透明 */
+body {
     height: 100vh;
     width: 100vw;
     margin: 0;
     padding: 0;
     overflow: hidden;
-    overscroll-behavior: none; /* 防止页面整体橡皮筋拉扯 */
+    overscroll-behavior: none; 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: #f2f2f7;
-}
-
-body {
+    background-color: transparent; 
     display: flex;
     flex-direction: column;
 }
@@ -159,7 +169,7 @@ body.mode-chapter .top-header { padding-top: 70px; padding-bottom: 0; }
 /* ================= 聊天区域 ================= */
 .chat-area {
     flex: 1; padding: 10px 20px 20px 20px; display: flex; flex-direction: column; gap: 16px; max-width: 600px; margin: 0 auto; width: 100%; overflow-y: auto;
-    overscroll-behavior-y: contain; /* 防止带动外部下拉 */
+    overscroll-behavior-y: contain;
     transition: padding-bottom 0.3s ease;
 }
 
